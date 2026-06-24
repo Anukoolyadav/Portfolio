@@ -12,16 +12,27 @@ const MONGO_URI  = process.env.MONGODB_URI;
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ── MongoDB connection ────────────────────────────────────────────
-if (!MONGO_URI || MONGO_URI.includes('<username>')) {
-  console.error('\n  ❌  MONGODB_URI is not set in .env');
-  console.error('     Edit .env and add your MongoDB Atlas connection string.\n');
-  process.exit(1);
+// ── Health check — Render pings this to confirm the server is up ──
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
+// ── MongoDB connection with retry (never crash the server) ────────
+let dbReady = false;
+
+function connectDB() {
+  if (!MONGO_URI || MONGO_URI.includes('<username>')) {
+    console.warn('  ⚠️  MONGODB_URI not set — blog API disabled, site still serves.');
+    return;
+  }
+
+  mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 8000 })
+    .then(() => { dbReady = true; console.log('  MongoDB connected ✓'); })
+    .catch(err => {
+      console.error('  MongoDB error:', err.message, '— retrying in 10s');
+      setTimeout(connectDB, 10000);
+    });
 }
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('  MongoDB connected ✓'))
-  .catch(err => { console.error('  MongoDB error:', err.message); process.exit(1); });
+connectDB();
 
 // ── Post schema ───────────────────────────────────────────────────
 const postSchema = new mongoose.Schema(
@@ -47,13 +58,16 @@ const auth = (req, res, next) => {
   res.status(401).json({ error: 'Unauthorized' });
 };
 
+const requireDB = (req, res, next) => {
+  if (!dbReady) return res.status(503).json({ error: 'Database not ready yet — try again in a moment.' });
+  next();
+};
+
 // ── Resume download ───────────────────────────────────────────────
 app.get('/download/resume', (req, res) => {
   const filePath = path.join(__dirname, 'Anukool_CV2026.pdf');
   if (!fs.existsSync(filePath)) {
-    return res.status(404).send(
-      'Resume PDF not found. Place Anukool_CV2026.pdf in the project folder.'
-    );
+    return res.status(404).send('Resume PDF not found.');
   }
   res.setHeader('Content-Disposition', 'attachment; filename="Anukool_Yadav_Resume.pdf"');
   res.setHeader('Content-Type', 'application/pdf');
@@ -62,16 +76,14 @@ app.get('/download/resume', (req, res) => {
 
 // ── Public API ────────────────────────────────────────────────────
 
-// List all published posts
-app.get('/api/posts', async (req, res) => {
+app.get('/api/posts', requireDB, async (req, res) => {
   try {
     const posts = await Post.find({ published: true }).sort({ createdAt: -1 });
     res.json(posts);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Single post by ID
-app.get('/api/posts/:id', async (req, res) => {
+app.get('/api/posts/:id', requireDB, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ error: 'Not found' });
@@ -81,16 +93,14 @@ app.get('/api/posts/:id', async (req, res) => {
 
 // ── Admin API ─────────────────────────────────────────────────────
 
-// All posts including drafts
-app.get('/api/admin/posts', auth, async (req, res) => {
+app.get('/api/admin/posts', auth, requireDB, async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
     res.json(posts);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Create post
-app.post('/api/posts', auth, async (req, res) => {
+app.post('/api/posts', auth, requireDB, async (req, res) => {
   try {
     const { title, content, tags, published = true } = req.body;
     if (!title || !content)
@@ -110,8 +120,7 @@ app.post('/api/posts', auth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Update post
-app.put('/api/posts/:id', auth, async (req, res) => {
+app.put('/api/posts/:id', auth, requireDB, async (req, res) => {
   try {
     const update = { ...req.body };
     if (update.content) update.excerpt = makeExcerpt(update.content);
@@ -124,8 +133,7 @@ app.put('/api/posts/:id', auth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Delete post
-app.delete('/api/posts/:id', auth, async (req, res) => {
+app.delete('/api/posts/:id', auth, requireDB, async (req, res) => {
   try {
     await Post.findByIdAndDelete(req.params.id);
     res.json({ success: true });
@@ -134,7 +142,10 @@ app.delete('/api/posts/:id', auth, async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  Portfolio  →  http://localhost:${PORT}`);
-  console.log(`  Admin      →  http://localhost:${PORT}/admin.html`);
+  const base = process.env.NODE_ENV === 'production'
+    ? 'https://anukoolyadav.onrender.com'
+    : `http://localhost:${PORT}`;
+  console.log(`\n  Portfolio  →  ${base}`);
+  console.log(`  Admin      →  ${base}/admin.html`);
   console.log(`  Password   →  ${ADMIN_PASS}\n`);
 });
