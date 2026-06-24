@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: anukool-portfolio
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_PASS
+        sync: false
+      - key: NODE_ENV
+        value: production

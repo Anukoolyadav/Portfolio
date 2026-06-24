@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog Admin — Anukool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #02050e;
+      --bg2:    #061020;
+      --bg3:    #0a1628;
+      --card:   rgba(10,22,40,0.9);
+      --border: rgba(255,255,255,0.08);
+      --teal:   #4ecdc4;
+      --accent: #7c6aff;
+      --amber:  #e8a87c;
+      --text:   #f0f4f8;
+      --muted:  rgba(240,244,248,0.5);
+      --red:    #ff5f5f;
+      --green:  #4ec94e;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+    }
+
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      backdrop-filter: blur(20px);
+      text-align: center;
+    }
+
+    .login-logo { font-size: 2rem; margin-bottom: 0.5rem; }
+    .login-box h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .login-box p { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; }
+
+    .form-group { text-align: left; margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.5px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: rgba(78,205,196,0.4); }
+
+    .form-group input[type="password"] { font-family: 'Fira Code', monospace; letter-spacing: 2px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 11px 22px; border-radius: 9px; font-size: 0.875rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, var(--teal), var(--accent)); color: #02050e; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(78,205,196,0.25); }
+    .btn-danger { background: rgba(255,95,95,0.12); color: var(--red); border: 1px solid rgba(255,95,95,0.25); }
+    .btn-danger:hover { background: rgba(255,95,95,0.2); }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-full { width: 100%; justify-content: center; }
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+    #login-error { color: var(--red); font-size: 0.82rem; margin-top: 0.75rem; display: none; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; min-height: 100vh; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(2,5,14,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-logo { font-size: 1rem; font-weight: 700; }
+    .header-logo span { color: var(--amber); }
+    .header-badge { font-size: 0.7rem; background: rgba(78,205,196,0.1); border: 1px solid rgba(78,205,196,0.2); color: var(--teal); padding: 3px 10px; border-radius: 20px; }
+
+    .dashboard-body {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: var(--bg2);
+    }
+
+    .sidebar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .sidebar-head h2 { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .post-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .post-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .post-item:hover, .post-item.active { border-color: rgba(78,205,196,0.3); background: rgba(78,205,196,0.04); }
+
+    .post-item h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.3rem; line-height: 1.3; }
+    .post-item .pi-meta { display: flex; justify-content: space-between; align-items: center; }
+    .post-item .pi-date { font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--muted); }
+
+    .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+    .status-dot.published { background: var(--green); }
+    .status-dot.draft { background: var(--amber); }
+
+    .no-posts-msg { color: var(--muted); font-size: 0.84rem; text-align: center; padding: 2rem 0; }
+
+    /* ── EDITOR ── */
+    .editor-pane {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .editor-pane h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.75rem; }
+
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 300px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .toggle-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--teal); border-color: var(--teal); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on::after { transform: translateX(20px); }
+
+    .toggle-label { font-size: 0.875rem; font-weight: 500; }
+    .toggle-label small { display: block; color: var(--muted); font-size: 0.77rem; font-weight: 400; }
+
+    .editor-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(78,201,78,0.3); color: var(--green); }
+    .toast.error { border-color: rgba(255,95,95,0.3); color: var(--red); }
+
+    /* Preview tab */
+    .tabs { display: flex; gap: 0; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 8px 18px; background: none; border: none; color: var(--muted); font-size: 0.84rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; transition: all 0.2s; }
+    .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .preview-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      min-height: 300px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.8;
+    }
+
+    .preview-box h1,.preview-box h2,.preview-box h3 { color: var(--text); margin: 1.25rem 0 0.6rem; }
+    .preview-box p { margin-bottom: 0.85rem; }
+    .preview-box code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; }
+    .preview-box pre { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin-bottom: 0.85rem; }
+    .preview-box pre code { background: none; padding: 0; }
+    .preview-box ul,.preview-box ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+    .preview-box strong { color: var(--text); }
+    .preview-box a { color: var(--teal); }
+
+    .helper-text { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; }
+
+    @media (max-width: 800px) {
+      .dashboard-body { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: 280px; }
+      .editor-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo">🔐</div>
+      <h1>Blog Admin</h1>
+      <p>Enter the admin password to manage your posts.</p>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="passInput" placeholder="Enter password…" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()"><i class="fas fa-unlock"></i> Sign In</button>
+      <div id="login-error"><i class="fas fa-exclamation-circle"></i> Incorrect password.</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <header>
+      <div class="header-left">
+        <span class="header-logo">Anukool<span>.</span></span>
+        <span class="header-badge">Blog Admin</span>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:center">
+        <a href="/" class="btn btn-ghost btn-sm"><i class="fas fa-globe"></i> View Site</a>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR: post list -->
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h2>All Posts</h2>
+          <button class="btn btn-primary btn-sm" onclick="newPost()"><i class="fas fa-plus"></i> New</button>
+        </div>
+        <div class="post-list" id="postList">
+          <p class="no-posts-msg">Loading…</p>
+        </div>
+      </aside>
+
+      <!-- EDITOR -->
+      <main class="editor-pane">
+        <h2 id="editor-title">New Post</h2>
+
+        <div class="editor-grid">
+          <div class="form-group">
+            <label>Title <span style="color:var(--red)">*</span></label>
+            <input type="text" id="fTitle" placeholder="Your post title…" oninput="syncPreview()" />
+          </div>
+          <div class="form-group">
+            <label>Tags <span class="helper-text">(comma separated)</span></label>
+            <input type="text" id="fTags" placeholder="ML, Python, Research…" />
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('write',this)"><i class="fas fa-pen"></i> Write</button>
+          <button class="tab-btn" onclick="switchTab('preview',this)"><i class="fas fa-eye"></i> Preview</button>
+        </div>
+
+        <div class="tab-pane active" id="tab-write">
+          <div class="form-group">
+            <label>Content — Markdown supported <span class="helper-text">(# Heading, **bold**, `code`, - list)</span></label>
+            <textarea id="fContent" placeholder="Write your post in Markdown…" oninput="syncPreview()"></textarea>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-preview">
+          <div class="preview-box" id="previewBox"><em style="opacity:0.4">Preview will appear here…</em></div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle on" id="publishToggle" onclick="this.classList.toggle('on')"></div>
+          <div class="toggle-label">Publish immediately<small>Turn off to save as draft</small></div>
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn btn-primary" onclick="savePost()"><i class="fas fa-save"></i> <span id="save-label">Save Post</span></button>
+          <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deletePost()"><i class="fas fa-trash"></i> Delete</button>
+          <button class="btn btn-ghost" onclick="newPost()"><i class="fas fa-times"></i> Clear</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const API = '/api';
+    let password = '';
+    let editingId = null;
+
+    // ── Auth ──
+    function doLogin() {
+      const p = document.getElementById('passInput').value.trim();
+      if (!p) return;
+      password = p;
+      fetch(`${API}/admin/posts`, { headers: { 'x-admin-pass': p } })
+        .then(r => {
+          if (!r.ok) { showLoginError(); return; }
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+          loadSidebar();
+        })
+        .catch(showLoginError);
+    }
+
+    function showLoginError() {
+      const e = document.getElementById('login-error');
+      e.style.display = 'block';
+      setTimeout(() => e.style.display = 'none', 3000);
+    }
+
+    function doLogout() {
+      password = '';
+      document.getElementById('login-screen').style.display = '';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('passInput').value = '';
+    }
+
+    // ── Load sidebar ──
+    async function loadSidebar() {
+      const list = document.getElementById('postList');
+      list.innerHTML = '<p class="no-posts-msg">Loading…</p>';
+      const res = await fetch(`${API}/admin/posts`, { headers: { 'x-admin-pass': password } });
+      const posts = await res.json();
+      if (!posts.length) { list.innerHTML = '<p class="no-posts-msg">No posts yet. Create your first!</p>'; return; }
+      list.innerHTML = posts.map(p => `
+        <div class="post-item ${editingId === p.id ? 'active' : ''}" onclick="editPost(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+          <h4>${p.title}</h4>
+          <div class="pi-meta">
+            <span class="pi-date">${new Date(p.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>
+            <span class="status-dot ${p.published ? 'published' : 'draft'}"></span>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── New post ──
+    function newPost() {
+      editingId = null;
+      document.getElementById('fTitle').value = '';
+      document.getElementById('fTags').value = '';
+      document.getElementById('fContent').value = '';
+      document.getElementById('publishToggle').classList.add('on');
+      document.getElementById('editor-title').textContent = 'New Post';
+      document.getElementById('save-label').textContent = 'Save Post';
+      document.getElementById('deleteBtn').style.display = 'none';
+      document.getElementById('previewBox').innerHTML = '<em style="opacity:0.4">Preview will appear here…</em>';
+      switchTab('write', document.querySelector('.tab-btn'));
+      document.querySelectorAll('.post-item').forEach(el => el.classList.remove('active'));
+    }
+
+    // ── Edit post ──
+    function editPost(p) {
+      editingId = p.id;
+      document.getElementById('fTitle').value = p.title;
+      document.getElementById('fTags').value = (p.tags || []).join(', ');
+      document.getElementById('fContent').value = p.content;
+      document.getElementById('publishToggle').classList.toggle('on', p.published);
+      document.getElementById('editor-title').textContent = 'Edit Post';
+      document.getElementById('save-label').textContent = 'Update Post';
+      document.getElementById('deleteBtn').style.display = '';
+      syncPreview();
+      document.querySelectorAll('.post-item').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
+
+    // ── Save ──
+    async function savePost() {
+      const title = document.getElementById('fTitle').value.trim();
+      const content = document.getElementById('fContent').value.trim();
+      if (!title || !content) { showToast('Title and content are required.', 'error'); return; }
+      const payload = {
+        title,
+        content,
+        tags: document.getElementById('fTags').value.split(',').map(t => t.trim()).filter(Boolean),
+        published: document.getElementById('publishToggle').classList.contains('on')
+      };
+      const url = editingId ? `${API}/posts/${editingId}` : `${API}/posts`;
+      const method = editingId ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'x-admin-pass': password }, body: JSON.stringify(payload) });
+      if (res.ok) {
+        showToast(editingId ? 'Post updated!' : 'Post published!', 'success');
+        const post = await res.json();
+        editingId = post.id;
+        document.getElementById('editor-title').textContent = 'Edit Post';
+        document.getElementById('save-label').textContent = 'Update Post';
+        document.getElementById('deleteBtn').style.display = '';
+        loadSidebar();
+      } else { showToast('Failed to save. Check connection.', 'error'); }
+    }
+
+    // ── Delete ──
+    async function deletePost() {
+      if (!editingId) return;
+      if (!confirm('Delete this post permanently?')) return;
+      const res = await fetch(`${API}/posts/${editingId}`, { method: 'DELETE', headers: { 'x-admin-pass': password } });
+      if (res.ok) { showToast('Post deleted.', 'success'); newPost(); loadSidebar(); }
+      else { showToast('Delete failed.', 'error'); }
+    }
+
+    // ── Preview ──
+    function syncPreview() {
+      const content = document.getElementById('fContent').value;
+      const box = document.getElementById('previewBox');
+      if (!content.trim()) { box.innerHTML = '<em style="opacity:0.4">Preview will appear here…</em>'; return; }
+      box.innerHTML = marked.parse ? marked.parse(content) : marked(content);
+    }
+
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'preview') syncPreview();
+    }
+
+    // ── Toast ──
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      const icon = type === 'success' ? '✅' : '❌';
+      t.innerHTML = `${icon} ${msg}`;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // Enter to login
+    document.getElementById('passInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  </script>
+</body>
+</html>
