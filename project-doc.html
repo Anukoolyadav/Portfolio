@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Documentation — Anukool Yadav Portfolio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #16a34a;
+      --teal:   #0d9488;
+      --blue:   #2563eb;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --text:   #1e293b;
+      --muted:  #64748b;
+      --border: #e2e8f0;
+      --bg:     #f8fafc;
+      --card:   #ffffff;
+      --code:   #f1f5f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    /* ── COVER PAGE ── */
+    .cover {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0f1e 0%, #0f1e3a 50%, #081228 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 40px;
+      page-break-after: always;
+    }
+    .cover-badge {
+      display: inline-block;
+      background: rgba(74,222,128,0.15);
+      border: 1px solid rgba(74,222,128,0.4);
+      color: #4ade80;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+    .cover h1 {
+      font-size: 48px;
+      font-weight: 800;
+      color: #4ade80;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .cover h2 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #94a3b8;
+      margin-bottom: 40px;
+    }
+    .cover-divider {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #4ade80, #4ecdc4);
+      border-radius: 2px;
+      margin: 0 auto 40px;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item {
+      text-align: center;
+    }
+    .cover-meta-item .label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .cover-meta-item .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .cover-url {
+      margin-top: 48px;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      color: #4ecdc4;
+      background: rgba(78,205,196,0.08);
+      border: 1px solid rgba(78,205,196,0.25);
+      padding: 10px 24px;
+      border-radius: 8px;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 48px 0;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .chapter {
+      margin-top: 56px;
+      margin-bottom: 28px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .chapter-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+    .chapter h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .chapter p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 24px 0 10px;
+    }
+    h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 16px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    p { margin-bottom: 12px; color: var(--text); }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-left: 4px solid var(--green);
+      background: #f0fdf4;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+      font-size: 13px;
+    }
+    .callout.blue  { border-color: var(--blue);   background: #eff6ff; }
+    .callout.orange{ border-color: var(--orange);  background: #fff7ed; }
+    .callout.teal  { border-color: var(--teal);    background: #f0fdfa; }
+    .callout.purple{ border-color: var(--purple);  background: #faf5ff; }
+    .callout strong { display: block; margin-bottom: 4px; }
+
+    /* ── CODE BLOCKS ── */
+    code {
+      font-family: 'Fira Code', monospace;
+      background: var(--code);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #be185d;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 18px 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 14px 0;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    .kw  { color: #93c5fd; }
+    .str { color: #86efac; }
+    .cmt { color: #64748b; font-style: italic; }
+    .fn  { color: #fde68a; }
+    .val { color: #f9a8d4; }
+
+    /* ── TABLES ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th {
+      background: var(--text);
+      color: white;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: var(--bg); }
+
+    /* ── CARDS ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .card .card-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .card .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── PIPELINE DIAGRAM ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    .pipe-box {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 90px;
+    }
+    .pipe-box.green  { border-color: #4ade80; background: #f0fdf4; color: #15803d; }
+    .pipe-box.blue   { border-color: #60a5fa; background: #eff6ff; color: #1d4ed8; }
+    .pipe-box.orange { border-color: #fb923c; background: #fff7ed; color: #c2410c; }
+    .pipe-box.teal   { border-color: #2dd4bf; background: #f0fdfa; color: #0f766e; }
+    .pipe-box.purple { border-color: #a78bfa; background: #faf5ff; color: #6d28d9; }
+    .pipe-arrow {
+      font-size: 18px;
+      color: var(--muted);
+      padding: 0 6px;
+    }
+
+    /* ── FOLDER TREE ── */
+    .tree {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px 24px;
+      border-radius: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      line-height: 1.9;
+      margin: 14px 0;
+    }
+    .tree .folder { color: #93c5fd; font-weight: 600; }
+    .tree .file   { color: #e2e8f0; }
+    .tree .comment{ color: #64748b; }
+    .tree .highlight { color: #86efac; font-weight: 600; }
+
+    /* ── STEP NUMBERS ── */
+    .steps { list-style: none; margin: 14px 0; }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      background: var(--green);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .steps li p { margin: 0; }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11.5px;
+      font-weight: 500;
+      margin: 2px;
+      color: var(--text);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body { font-size: 12px; }
+      .cover { page-break-after: always; }
+      .chapter { page-break-before: auto; }
+      h3, h4 { page-break-after: avoid; }
+      pre, table, .card-grid { page-break-inside: avoid; }
+      @page { margin: 1.5cm 2cm; }
+    }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+    .pb { page-break-before: always; }
+    ul, ol { padding-left: 22px; margin: 10px 0; }
+    li { margin-bottom: 5px; }
+    .small { font-size: 12px; color: var(--muted); }
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 40px 0 60px;
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ COVER ══════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Full Stack Project Documentation</div>
+  <h1>Portfolio Website</h1>
+  <h2>Anukool Yadav — AI/ML Engineer</h2>
+  <div class="cover-divider"></div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">Author</div>
+      <div class="value">Anukool Yadav</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Stack</div>
+      <div class="value">HTML · CSS · JS · Node.js · MongoDB</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Deployed On</div>
+      <div class="value">Render (Cloud)</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Year</div>
+      <div class="value">2026</div>
+    </div>
+  </div>
+  <div class="cover-url">https://anukoolyadav.onrender.com</div>
+</div>
+
+<!-- ══════════════════ BODY ══════════════════ -->
+<div class="page">
+
+  <!-- 1. PROJECT OVERVIEW -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter 1</div>
+    <h2>What Did We Build?</h2>
+    <p>A personal portfolio website with a live backend — not just a static HTML page.</p>
+  </div>
+
+  <p>
+    This project is a <strong>full-stack personal portfolio</strong>. Visitors can see your skills, projects,
+    certifications, experience, and blog posts. They can also send you a message directly from the page and
+    it arrives in your Gmail inbox in real time.
+  </p>
+  <p>
+    Behind the scenes, an <strong>Express.js server</strong> runs on the cloud, connects to a
+    <strong>MongoDB database</strong>, and handles API requests from the browser.
+  </p>
+
+  <div class="callout">
+    <strong>Simple analogy</strong>
+    Think of it like a restaurant: the <em>frontend</em> (HTML/CSS/JS) is the dining area customers see.
+    The <em>backend</em> (Node.js + Express) is the kitchen that processes orders. The <em>database</em>
+    (MongoDB) is the pantry/storage. <em>Render</em> is the building that hosts the whole restaurant.
+  </div>
+
+  <h3>Key Features</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Night Sky Hero</div>
+      <div class="card-desc">3-layer parallax star animation, nebula orbs, mountain silhouettes — all pure CSS + JS canvas.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dynamic Blog</div>
+      <div class="card-desc">Write and publish posts from an admin panel. Posts are stored in MongoDB and loaded live.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Contact Form with Email</div>
+      <div class="card-desc">Visitor fills a form → backend sends a formatted email to anukool.xeep@gmail.com instantly.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resume Download</div>
+      <div class="card-desc">Server streams the PDF file directly. No exposing the file URL publicly.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dark / Light Mode</div>
+      <div class="card-desc">CSS variables swap the whole theme. Preference is saved to localStorage.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Animated Skill Bars</div>
+      <div class="card-desc">Progress bars fill with a shimmer effect when scrolled into view, using IntersectionObserver.</div>
+    </div>
+  </div>
+
+
+  <!-- 2. TECH STACK -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 2</div>
+    <h2>Tools &amp; Technologies Used</h2>
+    <p>Every tool chosen, what it does, and why it was used.</p>
+  </div>
+
+  <h3>Frontend (What the browser runs)</h3>
+  <table>
+    <tr><th>Tool</th><th>What It Is</th><th>Why Used Here</th></tr>
+    <tr>
+      <td><strong>HTML5</strong></td>
+      <td>HyperText Markup Language — defines page structure</td>
+      <td>The skeleton of every web page. Describes what content exists.</td>
+    </tr>
+    <tr>
+      <td><strong>CSS3</strong></td>
+      <td>Cascading Style Sheets — controls appearance</td>
+      <td>All colours, animations, layout, dark mode, responsive design.</td>
+    </tr>
+    <tr>
+      <td><strong>Vanilla JavaScript</strong></td>
+      <td>Plain JS without any framework</td>
+      <td>Stars, scroll effects, API calls, blog loader, contact form.</td>
+    </tr>
+    <tr>
+      <td><strong>Font Awesome 6</strong></td>
+      <td>Icon library loaded via CDN</td>
+      <td>All icons (nav, social, download button).</td>
+    </tr>
+    <tr>
+      <td><strong>Google Fonts</strong></td>
+      <td>Web fonts: Inter + Fira Code</td>
+      <td>Inter for body text; Fira Code for code/mono sections.</td>
+    </tr>
+    <tr>
+      <td><strong>marked.js</strong></td>
+      <td>Markdown-to-HTML converter (CDN)</td>
+      <td>Blog post content is written in Markdown; marked.js renders it.</td>
+    </tr>
+  </table>
+
+  <h3>Backend (What the server runs)</h3>
+  <table>
+    <tr><th>Tool</th><th>What It Is</th><th>Why Used Here</th></tr>
+    <tr>
+      <td><strong>Node.js</strong></td>
+      <td>JavaScript runtime that runs outside the browser</td>
+      <td>Lets us write the server in JavaScript (same language as frontend).</td>
+    </tr>
+    <tr>
+      <td><strong>Express.js</strong></td>
+      <td>Minimal web framework for Node.js</td>
+      <td>Handles HTTP routes (GET /api/posts, POST /api/contact, etc.).</td>
+    </tr>
+    <tr>
+      <td><strong>MongoDB Atlas</strong></td>
+      <td>Cloud-hosted NoSQL database</td>
+      <td>Stores blog posts. Free tier (M0). No SQL needed — data is JSON-like.</td>
+    </tr>
+    <tr>
+      <td><strong>Mongoose</strong></td>
+      <td>MongoDB object modeling library for Node.js</td>
+      <td>Defines Post schema, validates data, provides easy CRUD methods.</td>
+    </tr>
+    <tr>
+      <td><strong>Nodemailer</strong></td>
+      <td>Email sending library for Node.js</td>
+      <td>Sends contact form messages to your Gmail using SMTP.</td>
+    </tr>
+    <tr>
+      <td><strong>dotenv</strong></td>
+      <td>Loads environment variables from .env file</td>
+      <td>Keeps secrets (DB password, email password) out of source code.</td>
+    </tr>
+  </table>
+
+  <h3>Deployment &amp; Infrastructure</h3>
+  <table>
+    <tr><th>Tool</th><th>What It Is</th><th>Why Used Here</th></tr>
+    <tr>
+      <td><strong>Render</strong></td>
+      <td>Cloud platform (like Heroku)</td>
+      <td>Hosts the Node.js server 24/7. Free tier available. Auto-deploys from GitHub.</td>
+    </tr>
+    <tr>
+      <td><strong>GitHub</strong></td>
+      <td>Code hosting + version control</td>
+      <td>Source code lives here. Render pulls from GitHub to deploy.</td>
+    </tr>
+    <tr>
+      <td><strong>Gmail SMTP</strong></td>
+      <td>Google's email sending server</td>
+      <td>Nodemailer connects to Gmail to send contact form emails.</td>
+    </tr>
+    <tr>
+      <td><strong>UptimeRobot</strong></td>
+      <td>Free uptime monitoring service</td>
+      <td>Pings the site every 5 min to prevent Render's free-tier sleep.</td>
+    </tr>
+  </table>
+
+  <h3>npm Packages (package.json)</h3>
+  <pre><code>{
+  <span class="str">"dependencies"</span>: {
+    <span class="str">"express"</span>:    <span class="str">"^4.18.2"</span>,   <span class="cmt">// web server framework</span>
+    <span class="str">"mongoose"</span>:   <span class="str">"^8.0.3"</span>,    <span class="cmt">// MongoDB ORM</span>
+    <span class="str">"mongodb"</span>:    <span class="str">"^7.3.0"</span>,    <span class="cmt">// MongoDB driver (mongoose peer dep)</span>
+    <span class="str">"nodemailer"</span>: <span class="str">"^6.x.x"</span>,    <span class="cmt">// email sending</span>
+    <span class="str">"dotenv"</span>:     <span class="str">"^16.3.1"</span>    <span class="cmt">// .env file loader</span>
+  }
+}</code></pre>
+
+
+  <!-- 3. FOLDER STRUCTURE -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 3</div>
+    <h2>Project Folder Structure</h2>
+    <p>How the files are organised and what each one does.</p>
+  </div>
+
+  <div class="tree">
+<span class="folder">NewFolder4/</span>  <span class="comment">← root of the project</span>
+│
+├── <span class="folder">public/</span>            <span class="comment">← everything the browser downloads</span>
+│   ├── <span class="highlight">index.html</span>     <span class="comment">← your portfolio page (HTML structure only)</span>
+│   ├── <span class="file">admin.html</span>     <span class="comment">← blog admin panel (write/edit/delete posts)</span>
+│   ├── <span class="folder">css/</span>
+│   │   └── <span class="highlight">style.css</span>  <span class="comment">← ALL styling: dark theme, animations, layout</span>
+│   └── <span class="folder">js/</span>
+│       └── <span class="highlight">main.js</span>    <span class="comment">← ALL frontend JS: stars, nav, blog, form logic</span>
+│
+├── <span class="folder">src/</span>               <span class="comment">← backend source code (Node.js only)</span>
+│   ├── <span class="folder">config/</span>
+│   │   └── <span class="file">db.js</span>          <span class="comment">← MongoDB connection + auto-retry logic</span>
+│   ├── <span class="folder">models/</span>
+│   │   └── <span class="file">Post.js</span>        <span class="comment">← blog post schema (title, content, tags, date)</span>
+│   ├── <span class="folder">controllers/</span>
+│   │   ├── <span class="file">postController.js</span>    <span class="comment">← logic: get/create/update/delete posts</span>
+│   │   └── <span class="file">contactController.js</span> <span class="comment">← logic: validate form + send email</span>
+│   ├── <span class="folder">routes/</span>
+│   │   ├── <span class="file">postRoutes.js</span>    <span class="comment">← maps URLs to post controller functions</span>
+│   │   ├── <span class="file">adminRoutes.js</span>   <span class="comment">← /api/admin/posts (admin panel only)</span>
+│   │   └── <span class="file">contactRoutes.js</span> <span class="comment">← maps POST /api/contact to controller</span>
+│   └── <span class="folder">middleware/</span>
+│       ├── <span class="file">auth.js</span>          <span class="comment">← blocks requests without the admin password</span>
+│       └── <span class="file">requireDB.js</span>     <span class="comment">← blocks API if MongoDB not connected yet</span>
+│
+├── <span class="highlight">server.js</span>          <span class="comment">← entry point: starts the whole app</span>
+├── <span class="file">package.json</span>       <span class="comment">← project metadata + dependency list</span>
+├── <span class="file">render.yaml</span>        <span class="comment">← tells Render how to deploy this</span>
+├── <span class="file">.env</span>               <span class="comment">← secret credentials (NEVER committed to git)</span>
+├── <span class="file">.gitignore</span>         <span class="comment">← tells git what to ignore (.env, node_modules)</span>
+└── <span class="file">Anukool_CV2026.pdf</span> <span class="comment">← resume file served via /download/resume</span>
+  </div>
+
+  <div class="callout teal">
+    <strong>Why two separate folders (public/ and src/)?</strong>
+    <code>public/</code> is served directly to browsers — anyone can request these files.
+    <code>src/</code> is server-side code — the browser never sees it. This separation is the industry standard.
+  </div>
+
+
+  <!-- 4. HOW IT CONNECTS -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 4</div>
+    <h2>How Everything Connects (The Pipeline)</h2>
+    <p>The journey of a request from browser to database and back.</p>
+  </div>
+
+  <h3>The Full Request Pipeline</h3>
+  <div class="pipeline">
+    <div class="pipe-box green">Browser<br><span style="font-weight:400;font-size:11px">Visitor</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box blue">Render<br><span style="font-weight:400;font-size:11px">Cloud Host</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box orange">server.js<br><span style="font-weight:400;font-size:11px">Entry Point</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box teal">Routes<br><span style="font-weight:400;font-size:11px">URL Mapping</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box purple">Middleware<br><span style="font-weight:400;font-size:11px">Auth / DB</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box orange">Controller<br><span style="font-weight:400;font-size:11px">Logic</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box blue">Model<br><span style="font-weight:400;font-size:11px">Schema</span></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-box green">MongoDB<br><span style="font-weight:400;font-size:11px">Database</span></div>
+  </div>
+
+  <h3>Example 1: Visitor loads the blog section</h3>
+  <ol class="steps">
+    <li><span class="step-num">1</span><p>Browser visits <code>https://anukoolyadav.onrender.com</code> → Render receives the request → <code>server.js</code> serves <code>public/index.html</code> (static file).</p></li>
+    <li><span class="step-num">2</span><p><code>main.js</code> runs in the browser, reaches the Blog section, calls <code>fetch('/api/posts')</code>.</p></li>
+    <li><span class="step-num">3</span><p>Express matches the URL to <code>postRoutes.js</code> → <code>requireDB</code> middleware checks MongoDB is ready → <code>postController.getAllPublished()</code> runs.</p></li>
+    <li><span class="step-num">4</span><p>Mongoose queries MongoDB: <code>Post.find({ published: true })</code> → returns array of posts as JSON.</p></li>
+    <li><span class="step-num">5</span><p>Response travels back to the browser → <code>main.js</code> renders each post as a card on the page.</p></li>
+  </ol>
+
+  <h3>Example 2: Visitor submits the contact form</h3>
+  <ol class="steps">
+    <li><span class="step-num">1</span><p>Visitor fills Name, Email, Message → clicks Send → browser calls <code>fetch('/api/contact', { method: 'POST', body: JSON })</code>.</p></li>
+    <li><span class="step-num">2</span><p>Express matches to <code>contactRoutes.js</code> → <code>contactController.sendMessage()</code> runs.</p></li>
+    <li><span class="step-num">3</span><p>Controller validates the data (no empty fields, valid email format).</p></li>
+    <li><span class="step-num">4</span><p>Nodemailer connects to Gmail SMTP using the App Password → sends formatted HTML email to <code>anukool.xeep@gmail.com</code>.</p></li>
+    <li><span class="step-num">5</span><p>Controller responds <code>{ success: true }</code> → browser shows green "Message sent!" banner.</p></li>
+  </ol>
+
+  <h3>Example 3: Admin creates a new blog post</h3>
+  <ol class="steps">
+    <li><span class="step-num">1</span><p>Admin opens <code>/admin.html</code>, enters password → browser stores it in memory.</p></li>
+    <li><span class="step-num">2</span><p>Admin writes title + content in Markdown, clicks Publish → browser calls <code>POST /api/posts</code> with header <code>x-admin-pass: anukool</code>.</p></li>
+    <li><span class="step-num">3</span><p><code>auth.js</code> middleware reads the header → matches <code>ADMIN_PASS</code> env variable → allows through.</p></li>
+    <li><span class="step-num">4</span><p><code>postController.create()</code> runs → Mongoose validates the Post schema → saves to MongoDB.</p></li>
+    <li><span class="step-num">5</span><p>Next visitor who loads the site sees the new post automatically.</p></li>
+  </ol>
+
+
+  <!-- 5. BACKEND IN DEPTH -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 5</div>
+    <h2>Backend Code — File by File</h2>
+    <p>What each backend file contains and why it's written that way.</p>
+  </div>
+
+  <h3>server.js — Entry Point</h3>
+  <p>This is the first file Node runs. Its only job is to <em>connect everything together</em>.</p>
+  <pre><code><span class="kw">require</span>(<span class="str">'dotenv'</span>).config();            <span class="cmt">// load .env file first</span>
+<span class="kw">const</span> express = <span class="kw">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> path    = <span class="kw">require</span>(<span class="str">'path'</span>);
+<span class="kw">const</span> { connectDB } = <span class="kw">require</span>(<span class="str">'./src/config/db'</span>);
+
+<span class="kw">const</span> app  = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, <span class="str">'public'</span>)));  <span class="cmt">// serve frontend files</span>
+
+app.get(<span class="str">'/health'</span>, (req, res) => res.send(<span class="str">'OK'</span>));       <span class="cmt">// Render health check</span>
+connectDB();                                               <span class="cmt">// connect to MongoDB</span>
+
+app.use(<span class="str">'/api/posts'</span>,   <span class="kw">require</span>(<span class="str">'./src/routes/postRoutes'</span>));
+app.use(<span class="str">'/api/admin'</span>,   <span class="kw">require</span>(<span class="str">'./src/routes/adminRoutes'</span>));
+app.use(<span class="str">'/api/contact'</span>, <span class="kw">require</span>(<span class="str">'./src/routes/contactRoutes'</span>));
+
+app.listen(PORT, <span class="str">'0.0.0.0'</span>, () => console.log(<span class="str">'Server running'</span>));</code></pre>
+
+  <h3>src/config/db.js — Database Connection</h3>
+  <p>Connects to MongoDB and retries every 10 seconds if it fails (so the server never crashes just because the DB is slow).</p>
+  <pre><code><span class="kw">let</span> dbReady = <span class="val">false</span>;
+
+<span class="kw">function</span> <span class="fn">connectDB</span>() {
+  mongoose.<span class="fn">connect</span>(uri, { serverSelectionTimeoutMS: <span class="val">8000</span> })
+    .then(() => { dbReady = <span class="val">true</span>; })          <span class="cmt">// success → mark ready</span>
+    .catch(err => setTimeout(connectDB, <span class="val">10000</span>)); <span class="cmt">// fail  → retry in 10s</span>
+}
+
+module.exports = { connectDB, isReady: () => dbReady };</code></pre>
+
+  <h3>src/models/Post.js — Data Schema</h3>
+  <p>A schema is a blueprint. It tells MongoDB: "every blog post must have these exact fields with these types."</p>
+  <pre><code><span class="kw">const</span> postSchema = <span class="kw">new</span> mongoose.<span class="fn">Schema</span>({
+  title:     { type: String, required: <span class="val">true</span> },   <span class="cmt">// mandatory</span>
+  content:   { type: String, required: <span class="val">true</span> },
+  excerpt:   { type: String },                    <span class="cmt">// auto-generated summary</span>
+  tags:      [String],                            <span class="cmt">// array of strings</span>
+  published: { type: Boolean, default: <span class="val">true</span> },
+  createdAt: { type: Date,    default: Date.now }
+});</code></pre>
+
+  <h3>src/middleware/auth.js — Password Guard</h3>
+  <p>Middleware runs between the route matching and the controller. It can block a request before anything else runs.</p>
+  <pre><code>module.exports = (req, res, next) => {
+  <span class="kw">if</span> (req.headers[<span class="str">'x-admin-pass'</span>] === process.env.ADMIN_PASS)
+    <span class="kw">return</span> <span class="fn">next</span>();   <span class="cmt">// password correct → continue</span>
+  res.status(<span class="val">401</span>).json({ error: <span class="str">'Unauthorized'</span> });
+};</code></pre>
+
+  <h3>src/routes/postRoutes.js — URL Mapping</h3>
+  <p>Routes connect an HTTP method + URL pattern to a controller function. Middleware is added in between where needed.</p>
+  <pre><code>router.get(<span class="str">'/'</span>,      requireDB,             post.getAllPublished);  <span class="cmt">// public</span>
+router.get(<span class="str">'/:id'</span>,   requireDB,             post.getOne);
+router.post(<span class="str">'/'</span>,     auth, requireDB,       post.create);          <span class="cmt">// needs password</span>
+router.put(<span class="str">'/:id'</span>,   auth, requireDB,       post.update);
+router.delete(<span class="str">'/:id'</span>, auth, requireDB,      post.remove);</code></pre>
+
+
+  <!-- 6. FRONTEND IN DEPTH -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 6</div>
+    <h2>Frontend Code — Key Concepts</h2>
+    <p>How the visual magic in the browser works.</p>
+  </div>
+
+  <h3>CSS Variables (Custom Properties)</h3>
+  <p>Instead of hardcoding colours everywhere, we define them once at the top. Changing the theme is as easy as changing one value.</p>
+  <pre><code><span class="kw">:root</span> {
+  --headline: <span class="val">#4ade80</span>;   <span class="cmt">/* bright green for headings */</span>
+  --teal:     <span class="val">#4ecdc4</span>;   <span class="cmt">/* buttons, focus glow */</span>
+  --card:     <span class="val">#0a1628</span>;   <span class="cmt">/* card background */</span>
+}
+
+<span class="cmt">/* Light mode just overrides the same variables */</span>
+<span class="kw">.light :root</span> {
+  --headline: <span class="val">#16a34a</span>;   <span class="cmt">/* darker green for white background */</span>
+}</code></pre>
+
+  <h3>IntersectionObserver — Scroll Animations</h3>
+  <p>This browser API fires a callback when an element enters the screen. No timers or scroll event listeners needed — it's efficient.</p>
+  <pre><code><span class="kw">const</span> observer = <span class="kw">new</span> IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    <span class="kw">if</span> (entry.isIntersecting) {
+      entry.target.classList.add(<span class="str">'visible'</span>);  <span class="cmt">// triggers CSS animation</span>
+      observer.unobserve(entry.target);        <span class="cmt">// only animate once</span>
+    }
+  });
+});
+
+document.querySelectorAll(<span class="str">'.reveal'</span>).forEach(el => observer.observe(el));</code></pre>
+
+  <h3>Fetch API — Talking to the Backend</h3>
+  <p>JavaScript calls the Express API without reloading the page.</p>
+  <pre><code><span class="cmt">// GET: load blog posts</span>
+<span class="kw">const</span> posts = <span class="kw">await</span> fetch(<span class="str">'/api/posts'</span>).then(r => r.json());
+
+<span class="cmt">// POST: submit contact form</span>
+<span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">'/api/contact'</span>, {
+  method:  <span class="str">'POST'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body:    JSON.stringify({ name, email, message })
+});
+<span class="kw">const</span> json = <span class="kw">await</span> res.json();   <span class="cmt">// { success: true } or { error: '...' }</span></code></pre>
+
+  <h3>Parallax Stars</h3>
+  <p>Three layers of stars (far, mid, near) move at different speeds when you scroll. This creates the illusion of depth.</p>
+  <pre><code><span class="cmt">// Far stars: move slowly (small parallax factor)</span>
+farStars.style.transform = <span class="str">`translateY(${scrollY * 0.1}px)`</span>;
+<span class="cmt">// Near stars: move faster (larger parallax factor)</span>
+nearStars.style.transform = <span class="str">`translateY(${scrollY * 0.4}px)`</span>;</code></pre>
+
+
+  <!-- 7. ENVIRONMENT VARIABLES -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 7</div>
+    <h2>Secrets &amp; Environment Variables</h2>
+    <p>How sensitive information (passwords, API keys) is handled safely.</p>
+  </div>
+
+  <div class="callout orange">
+    <strong>NEVER put passwords in your source code or commit them to GitHub.</strong>
+    If someone forks your repo, they get your credentials. Environment variables are the safe alternative.
+  </div>
+
+  <h3>The .env File (Local Only)</h3>
+  <p>This file lives on your machine only. It is listed in <code>.gitignore</code> so it is never uploaded.</p>
+  <pre><code><span class="cmt"># .env — local development secrets</span>
+MONGODB_URI=mongodb+srv://Anukool7:Anu%401234@cluster0...
+ADMIN_PASS=anukool
+PORT=3000
+EMAIL_USER=anukool.xeep@gmail.com
+EMAIL_PASS=abcdefghijklmnop   <span class="cmt">← 16-char Gmail App Password</span></code></pre>
+
+  <h3>How dotenv Works</h3>
+  <pre><code>require(<span class="str">'dotenv'</span>).config();   <span class="cmt">// reads .env, loads into process.env</span>
+
+<span class="cmt">// Now accessible anywhere in Node.js:</span>
+process.env.MONGODB_URI   <span class="cmt">// the connection string</span>
+process.env.EMAIL_PASS    <span class="cmt">// the Gmail app password</span></code></pre>
+
+  <h3>On Render (Production)</h3>
+  <p>Render has an "Environment" tab in your service dashboard. You type the same keys and values there.
+  When your server starts on the cloud, Render injects them — no <code>.env</code> file needed.</p>
+
+  <table>
+    <tr><th>Key</th><th>Value</th><th>Used By</th></tr>
+    <tr><td><code>MONGODB_URI</code></td><td>MongoDB Atlas connection string</td><td>db.js connection</td></tr>
+    <tr><td><code>ADMIN_PASS</code></td><td>Your chosen admin password</td><td>auth.js middleware</td></tr>
+    <tr><td><code>EMAIL_USER</code></td><td>anukool.xeep@gmail.com</td><td>contactController.js</td></tr>
+    <tr><td><code>EMAIL_PASS</code></td><td>Gmail App Password (16 chars)</td><td>contactController.js</td></tr>
+    <tr><td><code>NODE_ENV</code></td><td>production</td><td>server.js URL logging</td></tr>
+  </table>
+
+  <div class="callout blue">
+    <strong>Gmail App Password vs Regular Password</strong>
+    Google blocks "less secure apps." You must enable 2-Step Verification, then go to
+    <em>Google Account → Security → App passwords</em> and generate a dedicated 16-character password
+    just for this app. Your main Google password is never exposed.
+  </div>
+
+
+  <!-- 8. DEPLOYMENT -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 8</div>
+    <h2>Deployment — How It Goes Live</h2>
+    <p>Getting the code from your laptop to the internet.</p>
+  </div>
+
+  <h3>Deployment Flow</h3>
+  <div class="pipeline" style="flex-direction:column; align-items:flex-start; gap:4px;">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="pipe-box green" style="min-width:160px">Your Laptop</div>
+      <span style="color:var(--muted)">You write code here</span>
+    </div>
+    <div style="padding-left:72px;color:var(--muted);font-size:18px">↓ git push</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="pipe-box blue" style="min-width:160px">GitHub Repo</div>
+      <span style="color:var(--muted)">Code is stored here</span>
+    </div>
+    <div style="padding-left:72px;color:var(--muted);font-size:18px">↓ Render watches GitHub</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="pipe-box orange" style="min-width:160px">Render Build</div>
+      <span style="color:var(--muted)">Runs <code>npm install</code> then <code>npm start</code></span>
+    </div>
+    <div style="padding-left:72px;color:var(--muted);font-size:18px">↓ Server starts</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="pipe-box green" style="min-width:160px">Live on Internet</div>
+      <span style="color:var(--muted)">https://anukoolyadav.onrender.com</span>
+    </div>
+  </div>
+
+  <h3>render.yaml — Auto-configuration</h3>
+  <p>Instead of clicking buttons in Render's UI, we tell Render exactly how to run the app in a file:</p>
+  <pre><code><span class="kw">services</span>:
+  - <span class="kw">type</span>: web
+    <span class="kw">name</span>: anukool-portfolio
+    <span class="kw">runtime</span>: node
+    <span class="kw">buildCommand</span>: npm install       <span class="cmt"># installs packages</span>
+    <span class="kw">startCommand</span>: npm start         <span class="cmt"># runs node server.js</span>
+    <span class="kw">healthCheckPath</span>: /health        <span class="cmt"># Render pings this to confirm server is up</span></code></pre>
+
+  <h3>Health Check</h3>
+  <p>Render periodically calls <code>GET /health</code>. If it gets back <code>200 OK</code>, the server is healthy.
+  If not, Render marks the deployment failed. Our server always responds to this regardless of MongoDB state.</p>
+
+  <h3>MongoDB Atlas Connection</h3>
+  <ul>
+    <li>Create a free cluster at <strong>cloud.mongodb.com</strong></li>
+    <li>Go to Network Access → Add IP Address → <code>0.0.0.0/0</code> (allow all — Render uses dynamic IPs)</li>
+    <li>Go to Database Access → Create a user with password</li>
+    <li>Click Connect → Drivers → copy the URI</li>
+    <li>Replace <code>@</code> in password with <code>%40</code> (URL encoding for special characters)</li>
+  </ul>
+
+
+  <!-- 9. WHAT YOU LEARNED -->
+  <div class="chapter pb">
+    <div class="chapter-num">Chapter 9</div>
+    <h2>Concepts You Applied</h2>
+    <p>A summary of the real-world engineering skills this project covers.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">REST API Design</div>
+      <div class="card-desc">GET, POST, PUT, DELETE routes with proper HTTP status codes (200, 201, 400, 401, 404, 503).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">MVC Architecture</div>
+      <div class="card-desc">Model (Post.js) → Controller (logic) → Routes (URL mapping). Standard pattern used at every company.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Middleware Pattern</div>
+      <div class="card-desc">Auth and DB-check middleware run before controllers — separation of concerns in action.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">NoSQL Database</div>
+      <div class="card-desc">MongoDB with Mongoose ODM. Schema definition, CRUD operations, virtuals, indexing.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Environment Security</div>
+      <div class="card-desc">dotenv, .gitignore, production env vars on Render — industry-standard secret management.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Async/Await</div>
+      <div class="card-desc">All database and email operations are asynchronous. Error handling with try/catch throughout.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">CSS Animations</div>
+      <div class="card-desc">@keyframes, transitions, IntersectionObserver, CSS variables, parallax scrolling.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cloud Deployment</div>
+      <div class="card-desc">GitHub → Render auto-deploy pipeline. Health checks, cold-start handling, production env config.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email Integration</div>
+      <div class="card-desc">SMTP via Nodemailer + Gmail App Password. HTML email templates, Reply-To header.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Frontend/Backend Split</div>
+      <div class="card-desc">public/ for browser files, src/ for server code. Express.static for serving the frontend.</div>
+    </div>
+  </div>
+
+  <h3>API Endpoints Reference</h3>
+  <table>
+    <tr><th>Method</th><th>Route</th><th>Auth?</th><th>What it does</th></tr>
+    <tr><td><span class="tag">GET</span></td><td><code>/api/posts</code></td><td>No</td><td>Fetch all published blog posts</td></tr>
+    <tr><td><span class="tag">GET</span></td><td><code>/api/posts/:id</code></td><td>No</td><td>Fetch one post by ID</td></tr>
+    <tr><td><span class="tag">POST</span></td><td><code>/api/posts</code></td><td>Yes</td><td>Create a new blog post</td></tr>
+    <tr><td><span class="tag">PUT</span></td><td><code>/api/posts/:id</code></td><td>Yes</td><td>Update an existing post</td></tr>
+    <tr><td><span class="tag">DELETE</span></td><td><code>/api/posts/:id</code></td><td>Yes</td><td>Delete a post</td></tr>
+    <tr><td><span class="tag">GET</span></td><td><code>/api/admin/posts</code></td><td>Yes</td><td>All posts incl. drafts (admin panel)</td></tr>
+    <tr><td><span class="tag">POST</span></td><td><code>/api/contact</code></td><td>No</td><td>Send contact form email to you</td></tr>
+    <tr><td><span class="tag">GET</span></td><td><code>/download/resume</code></td><td>No</td><td>Stream resume PDF download</td></tr>
+    <tr><td><span class="tag">GET</span></td><td><code>/health</code></td><td>No</td><td>Render health check (returns "OK")</td></tr>
+  </table>
+
+
+  <!-- FOOTER -->
+  <div class="footer-note">
+    <strong>Anukool Yadav — Portfolio Project Documentation</strong><br>
+    Built with HTML · CSS · Vanilla JS · Node.js · Express · MongoDB · Nodemailer · Render<br>
+    Live at https://anukoolyadav.onrender.com &nbsp;·&nbsp; 2026
+  </div>
+
+</div>
+</body>
+</html>
