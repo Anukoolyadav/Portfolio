@@ -1,17 +1,13 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-let transporter = null;
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    connectionTimeout: 10000,
-    greetingTimeout:   10000,
-    socketTimeout:     15000
-  });
-  console.log('  Email ready ✓');
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+if (resend) {
+  console.log('  Resend email ready ✓');
 } else {
-  console.warn('  ⚠️  EMAIL_USER/EMAIL_PASS not set — contact form disabled');
+  console.warn('  ⚠️  RESEND_API_KEY not set — contact form disabled');
 }
 
 exports.sendMessage = async (req, res) => {
@@ -23,16 +19,15 @@ exports.sendMessage = async (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     return res.status(400).json({ error: 'Invalid email address.' });
 
-  if (!transporter)
+  if (!resend)
     return res.status(503).json({ error: 'Email service not configured on server.' });
 
   try {
-    await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: 'anukool.xeep@gmail.com',
-      replyTo: email,
-      subject: subject?.trim() || `New message from ${name} — Portfolio`,
-      text: `Name: ${name}\nEmail: ${email}\n${subject ? `Subject: ${subject}\n` : ''}\nMessage:\n${message}`,
+    await resend.emails.send({
+      from:     'Portfolio Contact <onboarding@resend.dev>',
+      to:       'anukool.xeep@gmail.com',
+      reply_to: email,
+      subject:  subject?.trim() || `New message from ${name} — Portfolio`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0a0f1e;color:#e2e8f0;border-radius:12px">
           <h2 style="color:#4ade80;margin:0 0 6px">New Portfolio Contact</h2>
@@ -51,7 +46,7 @@ exports.sendMessage = async (req, res) => {
     });
     res.json({ success: true, message: "Message sent! I'll get back to you soon." });
   } catch (e) {
-    console.error('Email send error:', e.message);
+    console.error('Resend error:', e.message);
     res.status(500).json({ error: 'Failed to send. Please email me directly.' });
   }
 };
