@@ -373,20 +373,28 @@
         message: form.querySelector('[name="message"]').value.trim()
       };
 
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15000);
+
       try {
         const res  = await fetch('/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
+        clearTimeout(timer);
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Something went wrong.');
         status.className = 'cf-status success';
         status.textContent = json.message || "Message sent! I'll get back to you soon.";
         form.reset();
       } catch (err) {
+        clearTimeout(timer);
         status.className = 'cf-status error';
-        status.textContent = err.message || 'Failed to send. Please email me directly.';
+        status.textContent = err.name === 'AbortError'
+          ? 'Request timed out. Please email me directly at anukool.xeep@gmail.com'
+          : (err.message || 'Failed to send. Please email me directly.');
       } finally {
         btn.disabled = false;
         btnTxt.textContent = 'Send Message';
