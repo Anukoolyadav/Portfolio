@@ -653,7 +653,7 @@
   <h3>Example 3: Admin creates a new blog post</h3>
   <ol class="steps">
     <li><span class="step-num">1</span><p>Admin opens <code>/admin.html</code>, enters password → browser stores it in memory.</p></li>
-    <li><span class="step-num">2</span><p>Admin writes title + content in Markdown, clicks Publish → browser calls <code>POST /api/posts</code> with header <code>x-admin-pass: anukool</code>.</p></li>
+    <li><span class="step-num">2</span><p>Admin writes title + content in Markdown, clicks Publish → browser calls <code>POST /api/posts</code> with header <code>x-admin-pass: &lt;ADMIN_PASS&gt;</code>.</p></li>
     <li><span class="step-num">3</span><p><code>auth.js</code> middleware reads the header → matches <code>ADMIN_PASS</code> env variable → allows through.</p></li>
     <li><span class="step-num">4</span><p><code>postController.create()</code> runs → Mongoose validates the Post schema → saves to MongoDB.</p></li>
     <li><span class="step-num">5</span><p>Next visitor who loads the site sees the new post automatically.</p></li>
@@ -796,11 +796,11 @@ nearStars.style.transform = <span class="str">`translateY(${scrollY * 0.4}px)`</
   <h3>The .env File (Local Only)</h3>
   <p>This file lives on your machine only. It is listed in <code>.gitignore</code> so it is never uploaded.</p>
   <pre><code><span class="cmt"># .env — local development secrets</span>
-MONGODB_URI=mongodb+srv://Anukool7:Anu%401234@cluster0...
-ADMIN_PASS=anukool
+MONGODB_URI=mongodb+srv://&lt;username&gt;:&lt;password&gt;@&lt;cluster-host&gt;/&lt;db-name&gt;
+ADMIN_PASS=&lt;your-admin-password&gt;
 PORT=3000
-EMAIL_USER=anukool.xeep@gmail.com
-EMAIL_PASS=abcdefghijklmnop   <span class="cmt">← 16-char Gmail App Password</span></code></pre>
+EMAIL_USER=&lt;your-email@example.com&gt;
+EMAIL_PASS=&lt;16-char-gmail-app-password&gt;   <span class="cmt">← 16-char Gmail App Password</span></code></pre>
 
   <h3>How dotenv Works</h3>
   <pre><code>require(<span class="str">'dotenv'</span>).config();   <span class="cmt">// reads .env, loads into process.env</span>
