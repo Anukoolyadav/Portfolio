@@ -28,9 +28,10 @@ function createApp() {
   app.get('/health', (req, res) => res.status(200).send('OK'));
 
   // Routes
-  app.use('/api/projects', require('./src/routes/projectRoutes'));
-  app.use('/api/admin',    require('./src/routes/adminRoutes'));
-  app.use('/api/contact',  require('./src/routes/contactRoutes'));
+  app.use('/api/projects',   require('./src/routes/projectRoutes'));
+  app.use('/api/experience', require('./src/routes/experienceRoutes'));
+  app.use('/api/admin',      require('./src/routes/adminRoutes'));
+  app.use('/api/contact',    require('./src/routes/contactRoutes'));
 
   // Resume PDF download
   app.get('/download/resume', (req, res) => {
