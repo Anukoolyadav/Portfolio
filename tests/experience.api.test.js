@@ -1,10 +1,10 @@
 const request    = require('supertest');
 const db         = require('./helpers/db');
 const Experience = require('../src/models/Experience');
-const { createApp } = require('../app');
+const listen  = require('./helpers/server');
 const { PUBLIC_FIELDS } = require('../src/services/experienceService');
 
-const app  = createApp();
+const app  = listen();
 const base = { type: 'job', role: 'Engineer', startDate: '2025-01-01' };
 
 beforeAll(db.connect);

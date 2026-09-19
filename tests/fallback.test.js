@@ -1,9 +1,9 @@
 // No DB connection in this file: simulates Mongo being down or unconfigured.
 const request = require('supertest');
-const { createApp } = require('../app');
+const listen  = require('./helpers/server');
 const seed = require('../data/projects.seed.json').projects;
 
-const app = createApp();
+const app  = listen();
 
 test('home page renders published seed projects when the DB is down', async () => {
   const res = await request(app).get('/').expect(200);

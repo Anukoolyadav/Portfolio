@@ -1,10 +1,10 @@
 const request = require('supertest');
 const db      = require('./helpers/db');
 const Project = require('../src/models/Project');
-const { createApp } = require('../app');
+const listen  = require('./helpers/server');
 const { PUBLIC_FIELDS } = require('../src/services/projectService');
 
-const app = createApp();
+const app  = listen();
 
 beforeAll(db.connect);
 afterAll(db.disconnect);
