@@ -2,7 +2,7 @@ const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 
-const projectsView = require('./src/services/projectsView');
+const pageView = require('./src/services/pageView');
 
 // Builds the Express app without connecting to the DB or listening,
 // so tests can import it directly.
@@ -15,7 +15,7 @@ function createApp() {
   // and static must not auto-serve the raw index.html template.
   app.get(['/', '/index.html'], async (req, res) => {
     try {
-      res.set('Cache-Control', 'no-cache').type('html').send(await projectsView.getIndexHtml());
+      res.set('Cache-Control', 'no-cache').type('html').send(await pageView.getIndexHtml());
     } catch (err) {
       console.error('Rendering / failed:', err.name);
       res.status(500).send('Something went wrong.');
