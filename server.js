@@ -1,4 +1,10 @@
 require('dotenv').config();
+
+if (!process.env.ADMIN_PASS?.trim()) {
+  console.error('  ✖  ADMIN_PASS is not set. Refusing to start — set it in .env (see .env.example) or in the host dashboard.');
+  process.exit(1);
+}
+
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
