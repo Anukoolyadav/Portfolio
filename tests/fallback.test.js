@@ -27,3 +27,18 @@ test('public API reports 503 instead of hanging when the DB is down', async () =
   const res = await request(app).get('/api/projects').expect(503);
   expect(res.body.error).toMatch(/Database not ready/);
 });
+
+describe('experience fallback (DB down)', () => {
+  const expSeed = require('../data/experience.seed.json').experience;
+
+  test('renders published seed entries', async () => {
+    const res = await request(app).get('/').expect(200);
+    for (const e of expSeed.filter(x => x.status === 'published')) {
+      expect(res.text).toContain(`<div class="tl-company">${e.company}</div>`);
+    }
+  });
+
+  test('public API reports 503', async () => {
+    await request(app).get('/api/experience').expect(503);
+  });
+});
