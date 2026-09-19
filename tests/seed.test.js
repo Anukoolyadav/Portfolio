@@ -31,7 +31,8 @@ test('editing slug of a seeded project, then re-seeding, creates no duplicate', 
   await seedAll();
   await Project.updateOne({ seedKey: projectSeed[0].seedKey }, { slug: 'renamed-by-admin', title: 'Renamed' });
 
-  const r = await seedAll({ only: 'projects' });
+  expect((await seedAll({ only: 'projects' })).projects).toEqual({ skippedManaged: true });
+  const r = await seedAll({ only: 'projects', force: true });   // exercise seedKey matching
   expect(r.projects).toMatchObject({ inserted: 0, backfilled: 0, skipped: projectSeed.length });
   expect(await Project.countDocuments()).toBe(projectSeed.length);
   expect(await Project.exists({ slug: 'renamed-by-admin' })).toBeTruthy();   // admin edit kept
@@ -44,7 +45,7 @@ test('editing company, role and startDate of seeded experience, then re-seeding,
     { company: 'Edited Co', role: 'Edited Role', startDate: new Date('2020-01-01') }
   );
 
-  const r = await seedAll({ only: 'experience' });
+  const r = await seedAll({ only: 'experience', force: true });
   expect(r.experience.inserted).toBe(0);
   expect(await Experience.countDocuments()).toBe(experienceSeed.length);
   expect(await Experience.exists({ company: 'Edited Co' })).toBeTruthy();
@@ -66,7 +67,8 @@ test('backfill matches pre-seedKey documents by their old identity, and is idemp
   expect(first.experience).toMatchObject({ inserted: 0, backfilled: experienceSeed.length });
   expect((await rawDocs(Project)).every(d => d.seedKey)).toBe(true);
 
-  const second = await seedAll();
+  expect(await seedAll()).toEqual({ projects: { skippedManaged: true }, experience: { skippedManaged: true } });
+  const second = await seedAll({ force: true });
   expect(second.projects).toMatchObject({ inserted: 0, backfilled: 0, skipped: projectSeed.length });
   expect(second.experience).toMatchObject({ inserted: 0, backfilled: 0, skipped: experienceSeed.length });
   expect(await Project.countDocuments()).toBe(projectSeed.length);

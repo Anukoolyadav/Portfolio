@@ -4,13 +4,15 @@
 // - DB-rendered HTML is cached until invalidate(name) is called
 //   (call it after every admin write to that resource).
 // - Seed fallback (published seed entries) ONLY when the DB is not ready, errors,
-//   or the collection has zero documents. Fallback output is not cached, so the
-//   page switches to DB data once Mongo is up.
-// - If documents exist but none are published, the section's empty state is
-//   rendered — an admin delete/unpublish is never overridden by the seed file.
+//   or the collection has zero documents AND was never seeded/edited (no
+//   "managed" marker). Fallback output is not cached, so the page switches to DB
+//   data once Mongo is up.
+// - Otherwise an empty result renders the section's empty state — an admin
+//   delete/unpublish (even of everything) is never overridden by the seed file.
 const fs   = require('fs');
 const path = require('path');
-const { isReady } = require('../config/db');
+const { isReady }   = require('../config/db');
+const { isManaged } = require('./managedCollections');
 
 const TEMPLATE_PATH = path.join(__dirname, '..', '..', 'public', 'index.html');
 const DATA_DIR      = path.join(__dirname, '..', '..', 'data');
@@ -56,7 +58,7 @@ async function renderSection(section) {
   if (isReady()) {
     try {
       const items = await section.service.listPublished();
-      if (items.length || await section.service.hasAny()) {
+      if (items.length || await section.service.hasAny() || await isManaged(section.name)) {
         const html = section.render(items);   // empty items -> empty state
         cache.set(section.name, html);
         return html;

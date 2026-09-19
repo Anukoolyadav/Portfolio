@@ -12,14 +12,16 @@ router.use('/projects', makeCrudRouter({
   model:      require('../models/Project'),
   spec:       specs.project,
   invalidate: () => pageView.invalidate('projects'),
-  label:      'Project'
+  label:      'Project',
+  collection: 'projects'
 }));
 
 router.use('/experience', makeCrudRouter({
   model:      require('../models/Experience'),
   spec:       specs.experience,
   invalidate: () => pageView.invalidate('experience'),
-  label:      'Experience'
+  label:      'Experience',
+  collection: 'experience'
 }));
 
 module.exports = router;

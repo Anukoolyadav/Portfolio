@@ -5,17 +5,22 @@
 //   npm run seed -- --update          also overwrite existing entries with the seed values
 //   npm run seed -- --only=projects   seed one resource (projects | experience)
 //   npm run seed -- --allow-remote    permit a non-localhost MONGODB_URI (off by default)
+//   npm run seed -- --force           also seed collections already seeded or edited in the admin
+//
+// A collection becomes "managed" after its first successful seed or its first admin
+// write. Managed collections are skipped by default, so deleted entries are never
+// re-created; --update on a managed collection therefore also needs --force.
 //
 // Entries are matched by their stable `seedKey`, so editing a seeded document's
 // slug/company/role/dates in the admin never causes a duplicate on re-seed.
 // Documents seeded before seedKey existed are backfilled once by their old
 // identity (legacyMatch). Safe to re-run. The connection string is never printed.
-require('dotenv').config();
 const path       = require('path');
 const mongoose   = require('mongoose');
 const Project    = require('../src/models/Project');
 const Experience = require('../src/models/Experience');
 const { isLocalMongoUri } = require('../src/utils/mongoUri');
+const { isManaged, markManaged } = require('../src/services/managedCollections');
 
 const RESOURCES = {
   projects: {
@@ -74,18 +79,27 @@ async function seedResource({ model, legacyMatch, ...resource }, { update = fals
   return counts;
 }
 
-async function seedAll({ update = false, only } = {}) {
+// Seeds every (or one) resource. Managed collections are skipped unless force.
+async function seedAll({ update = false, force = false, only } = {}) {
   const results = {};
   for (const [name, resource] of Object.entries(RESOURCES)) {
-    if (!only || only === name) results[name] = await seedResource(resource, { update });
+    if (only && only !== name) continue;
+    if (!force && await isManaged(name)) {
+      results[name] = { skippedManaged: true };
+      continue;
+    }
+    results[name] = await seedResource(resource, { update });
+    await markManaged(name);
   }
   return results;
 }
 
 async function main() {
+  require('dotenv').config();   // only when run as a script — importing this file never reads .env
   const argv        = process.argv.slice(2);
   const allowRemote = argv.includes('--allow-remote');
   const update      = argv.includes('--update');
+  const force       = argv.includes('--force');
   const only        = argv.find(a => a.startsWith('--only='))?.slice('--only='.length);
 
   const uri = process.env.MONGODB_URI;
@@ -105,8 +119,12 @@ async function main() {
 
   await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
   console.log(`✓ Seeding (${allowRemote ? 'remote allowed' : 'local'}):`);
-  const results = await seedAll({ update, only });
+  const results = await seedAll({ update, force, only });
   for (const [name, c] of Object.entries(results)) {
+    if (c.skippedManaged) {
+      console.log(`  ${name.padEnd(10)} skipped — already seeded or edited in the admin (use --force to seed anyway)`);
+      continue;
+    }
     console.log(`  ${name.padEnd(10)} ${c.inserted} inserted, ${c.backfilled} backfilled, ` +
                 `${c.updated} updated, ${c.skipped} unchanged`);
   }

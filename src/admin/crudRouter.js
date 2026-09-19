@@ -7,7 +7,8 @@
 //   PATCH  /:id/publish { published: true|false }
 //   PATCH  /reorder     { ids: [...] } — every document id exactly once; one bulkWrite
 //
-// Every write calls invalidate() so the public page re-renders. Errors are generic;
+// Every successful write marks the collection as managed (so the seed fallback and
+// the seed script never resurrect deleted entries) and calls invalidate(). Errors are generic;
 // validation failures return { error, fields } with our own messages only.
 const router      = require('express').Router;
 const mongoose    = require('mongoose');
@@ -15,6 +16,7 @@ const auth        = require('../middleware/auth');
 const requireDB   = require('../middleware/requireDB');
 const { sanitize } = require('./sanitize');
 const fieldErrors = require('./validationErrors');
+const { markManaged } = require('../services/managedCollections');
 
 const isId = id => mongoose.isValidObjectId(id) && String(new mongoose.Types.ObjectId(id)) === id;
 
@@ -24,7 +26,13 @@ function toAdmin(doc) {
   return rest;
 }
 
-module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
+module.exports = function makeCrudRouter({ model, spec, invalidate, label, collection }) {
+  // After any successful write: remember the admin manages this collection, refresh the page.
+  const afterWrite = async () => {
+    await markManaged(collection);
+    invalidate();
+  };
+
   const r = router();
   r.use(auth, requireDB);
 
@@ -76,7 +84,7 @@ module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
     try {
       const last = await model.findOne().sort({ order: -1 }).select('order').lean();
       const doc  = await model.create({ ...data, order: (last?.order ?? 0) + 1 });
-      invalidate();
+      await afterWrite();
       res.status(201).json(toAdmin(doc));
     } catch (err) {
       if (!handleWriteError(res, err)) fail(res, 'create', err);
@@ -100,7 +108,7 @@ module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
       await model.bulkWrite(ids.map((id, index) => ({
         updateOne: { filter: { _id: id }, update: { $set: { order: index + 1 } } }
       })));
-      invalidate();
+      await afterWrite();
       res.json({ ok: true });
     } catch (err) { fail(res, 'reorder', err); }
   });
@@ -113,7 +121,7 @@ module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
       if (!doc) return;
       doc.set(data);
       await doc.save();
-      invalidate();
+      await afterWrite();
       res.json(toAdmin(doc));
     } catch (err) {
       if (!handleWriteError(res, err)) fail(res, 'update', err);
@@ -129,7 +137,7 @@ module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
       if (!doc) return;
       doc.status = req.body.published ? 'published' : 'draft';
       await doc.save();
-      invalidate();
+      await afterWrite();
       res.json(toAdmin(doc));
     } catch (err) {
       if (!handleWriteError(res, err)) fail(res, 'publish', err);
@@ -141,7 +149,7 @@ module.exports = function makeCrudRouter({ model, spec, invalidate, label }) {
       const doc = await findById(req, res);
       if (!doc) return;
       await doc.deleteOne();
-      invalidate();
+      await afterWrite();
       res.json({ ok: true });
     } catch (err) { fail(res, 'delete', err); }
   });
