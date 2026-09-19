@@ -1,7 +1,7 @@
 {
   "name": "anukool-portfolio",
   "version": "1.0.0",
-  "description": "Anukool Yadav's portfolio with blog backend",
+  "description": "Anukool Yadav's portfolio — vanilla frontend with an Express + MongoDB backend and admin panel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

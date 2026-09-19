@@ -1,6 +1,6 @@
 # Anukool Yadav — Portfolio
 
-Personal portfolio website with a dynamic blog backend, built with vanilla HTML/CSS/JS and a Node.js + Express + MongoDB stack.
+Personal portfolio website built with vanilla HTML/CSS/JS on a Node.js + Express backend, with MongoDB for admin-managed content.
 
 **Live →** [anukoolyadav.onrender.com](https://anukoolyadav.onrender.com)
 
@@ -10,14 +10,13 @@ Personal portfolio website with a dynamic blog backend, built with vanilla HTML/
 
 - Night sky parallax hero with animated stars, nebula orbs, and mountain layers
 - Deep space recession effect as you scroll
-- Vertical animated left-side navigation bar
+- Vertical animated left-side navigation bar (bottom bar on mobile)
 - Dark / Light mode toggle (persisted to localStorage)
 - Horizontal skill progress bars with shimmer animation
 - 3D diamond hover effect on contact links
-- Dynamic blog — write and publish posts from an admin panel
+- Contact form that emails me via [Resend](https://resend.com)
 - Resume PDF download via server route
-- MongoDB Atlas for blog post storage
-- Fully responsive — mobile fallback bottom nav
+- Password-protected admin panel (projects manager in progress)
 
 ---
 
@@ -27,11 +26,11 @@ Personal portfolio website with a dynamic blog backend, built with vanilla HTML/
 |-------|-----------|
 | Frontend | HTML, CSS, Vanilla JS |
 | Backend | Node.js, Express.js |
-| Database | MongoDB Atlas + Mongoose |
+| Database | MongoDB + Mongoose |
+| Email | Resend |
 | Fonts | Inter, Fira Code (Google Fonts) |
 | Icons | Font Awesome 6 |
-| Markdown | marked.js |
-| Hosting | Render |
+| Hosting | Render (today) — AWS EC2 planned |
 
 ---
 
@@ -39,14 +38,23 @@ Personal portfolio website with a dynamic blog backend, built with vanilla HTML/
 
 ```
 portfolio/
-├── index.html          # Main portfolio (all sections + CSS + JS)
-├── admin.html          # Blog admin panel
-├── server.js           # Express API server
-├── package.json
-├── render.yaml         # Render deployment config
-├── .env                # Local environment variables (not committed)
-├── .gitignore
-└── Anukool_CV2026.pdf  # Resume file served via /download/resume
+├── server.js               # Express entry: static files, routes, /health, /download/resume
+├── src/
+│   ├── config/db.js        # MongoDB connection (retries on failure)
+│   ├── middleware/
+│   │   ├── auth.js         # Admin password check (constant-time)
+│   │   └── requireDB.js    # 503 until the DB is connected
+│   ├── controllers/        # Route handlers (contact form)
+│   └── routes/             # /api/admin, /api/contact
+├── public/                 # Served as static files
+│   ├── index.html          # Portfolio page
+│   ├── admin.html          # Admin panel
+│   ├── css/style.css
+│   └── js/main.js
+├── docs/project-doc.html   # Learning notes on how the project was built
+├── Anukool_CV2026.pdf      # Resume served via /download/resume
+├── render.yaml             # Render deployment config
+└── .env.example            # Environment variable template
 ```
 
 ---
@@ -55,8 +63,8 @@ portfolio/
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/Anukoolyadav/portfolio.git
-cd portfolio
+git clone https://github.com/Anukoolyadav/Portfolio.git
+cd Portfolio
 ```
 
 **2. Install dependencies**
@@ -64,46 +72,33 @@ cd portfolio
 npm install
 ```
 
-**3. Create `.env` file**
-```env
-MONGODB_URI=your_mongodb_atlas_uri
-ADMIN_PASS=your_admin_password
-PORT=3000
+**3. Create `.env`** from the template and fill in values
+```bash
+cp .env.example .env
 ```
 
-> **Note:** In the MongoDB URI, URL-encode any special characters in your password.  
-> Example: `@` → `%40`, so `Pass@123` becomes `Pass%40123`
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `ADMIN_PASS` | **Yes** — server refuses to start without it | Admin panel password |
+| `MONGODB_URI` | No — DB features disabled if unset | e.g. `mongodb://127.0.0.1:27017/portfolio` for local MongoDB |
+| `RESEND_API_KEY` | No — contact form returns 503 if unset | Resend API key |
+| `PORT` | No (default `3000`) | HTTP port |
+| `NODE_ENV` | No | `development` / `production` |
+
+> Never commit `.env`. It is git-ignored.
 
 **4. Start the server**
 ```bash
-npm start
+npm start        # or: npm run dev (auto-restart with nodemon)
 ```
 
-Open `http://localhost:3000`
+Open `http://localhost:3000`.
 
 ---
 
-## Blog Admin
+## Admin
 
-Visit `http://localhost:3000/admin.html`
-
-- Enter your `ADMIN_PASS` to log in
-- Create, edit, publish, or delete blog posts
-- Markdown supported with live preview
-
----
-
-## Deployment (Render)
-
-1. Push repo to GitHub
-2. Go to [render.com](https://render.com) → New Web Service → connect repo
-3. Render auto-detects `render.yaml`
-4. Add environment variables in Render dashboard:
-   - `MONGODB_URI` — your Atlas connection string
-   - `ADMIN_PASS` — your admin password
-5. MongoDB Atlas → Network Access → allow `0.0.0.0/0`
-
-To prevent cold-start delays on the free tier, add a free monitor at [uptimerobot.com](https://uptimerobot.com) pinging your Render URL every 5 minutes.
+Visit `/admin.html` and sign in with `ADMIN_PASS`. The dashboard is currently a shell; a projects manager (add / edit / reorder / publish projects) is being built.
 
 ---
 
@@ -111,16 +106,20 @@ To prevent cold-start delays on the free tier, add a free monitor at [uptimerobo
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| GET | `/api/posts` | — | All published posts |
-| GET | `/api/posts/:id` | — | Single post |
-| POST | `/api/posts` | ✓ | Create post |
-| PUT | `/api/posts/:id` | ✓ | Update post |
-| DELETE | `/api/posts/:id` | ✓ | Delete post |
-| GET | `/api/admin/posts` | ✓ | All posts including drafts |
+| GET | `/api/admin/session` | ✓ | Verify admin password (`200 { ok: true }`) |
+| POST | `/api/contact` | — | Send a contact-form message |
 | GET | `/download/resume` | — | Download resume PDF |
 | GET | `/health` | — | Health check |
 
-Auth: pass `x-admin-pass: <password>` header.
+Auth: send the `x-admin-pass: <password>` header.
+
+---
+
+## Deployment
+
+**Today — Render.** The repo includes a `render.yaml` blueprint (`npm install` → `npm start`, health check on `/health`). Set `ADMIN_PASS`, `MONGODB_URI` and `RESEND_API_KEY` in the Render dashboard's Environment tab.
+
+**Planned — AWS EC2** behind Nginx with Let's Encrypt HTTPS, a process manager, a custom domain, and GitHub Actions CI/CD.
 
 ---
 
@@ -132,12 +131,11 @@ Auth: pass `x-admin-pass: <password>` header.
 | About | Summary + animated stat cards |
 | Skills | Horizontal progress bars (4 categories) |
 | Projects | Row-based project list with tech tags |
-| Blog | Dynamic posts from MongoDB |
 | Experience | Timeline of work history |
 | Certifications | Row list with issuer |
 | Achievements | LeetCode, HackerRank, Research |
 | Education | Academic background |
-| Contact | 3D diamond social buttons |
+| Contact | 3D diamond social buttons + contact form |
 
 ---
 
