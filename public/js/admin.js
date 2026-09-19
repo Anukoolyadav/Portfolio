@@ -60,7 +60,8 @@
   };
 
   // ── State ───────────────────────────────────────────────────────────────────
-  let password = '';          // in memory only; replaced by a session cookie in Part E
+  // Auth is an httpOnly session cookie set by the server; the password is never
+  // kept in JS state or storage — it lives only in the login input until submit.
   let current  = 'projects';  // active tab
   let items    = [];          // documents of the active tab
   let editing  = null;        // id being edited, or null for "new"
@@ -96,7 +97,7 @@
 
   // ── API ─────────────────────────────────────────────────────────────────────
   async function api(method, url, body) {
-    const opts = { method, headers: { 'x-admin-pass': password } };
+    const opts = { method, headers: {}, credentials: 'same-origin' };
     if (body !== undefined) {
       opts.headers['Content-Type'] = 'application/json';
       opts.body = JSON.stringify(body);
@@ -109,7 +110,7 @@
     }
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) {
-      logout('Session expired — please sign in again.');
+      showLogin('Session expired — please sign in again.');
       throw Object.assign(new Error('Unauthorized'), { status: 401, handled: true });
     }
     if (!res.ok) throw Object.assign(new Error(data.error || `Request failed (${res.status})`), { status: res.status, fields: data.fields });
@@ -117,17 +118,36 @@
   }
 
   // ── Auth ────────────────────────────────────────────────────────────────────
+  function showDashboard() {
+    $('login-screen').hidden = true;
+    $('dashboard').hidden = false;
+    switchTab(current);
+  }
+
+  function showLogin(msg) {
+    items = [];
+    editing = null;
+    $('dashboard').hidden = true;
+    $('login-screen').hidden = false;
+    if (msg) showLoginError(msg);
+    $('passInput').focus();
+  }
+
   async function login() {
-    const p = $('passInput').value.trim();
-    if (!p) return;
+    const input = $('passInput');
+    const body = JSON.stringify({ password: input.value });
+    input.value = '';                       // clear before the request even starts
+    if (body === '{"password":""}') return;
     try {
-      const res = await fetch('/api/admin/session', { headers: { 'x-admin-pass': p } });
-      if (!res.ok) return showLoginError('Incorrect password.');
-      password = p;
-      $('passInput').value = '';
-      $('login-screen').hidden = true;
-      $('dashboard').hidden = false;
-      switchTab(current);
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body
+      });
+      if (res.ok) return showDashboard();
+      const data = await res.json().catch(() => ({}));
+      showLoginError(res.status === 401 ? 'Incorrect password.' : (data.error || `Sign-in failed (${res.status}).`));
     } catch {
       showLoginError('Could not reach the server.');
     }
@@ -137,16 +157,23 @@
     const e = $('login-error');
     e.textContent = msg;
     e.hidden = false;
-    setTimeout(() => { e.hidden = true; }, 3500);
+    setTimeout(() => { e.hidden = true; }, 4000);
   }
 
-  function logout(msg) {
-    password = '';
-    items = [];
-    editing = null;
-    $('dashboard').hidden = true;
-    $('login-screen').hidden = false;
-    if (msg) showLoginError(msg);
+  async function logout() {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch { /* cookie expires on its own */ }
+    showLogin();
+  }
+
+  // On page load: an existing session cookie skips the login screen.
+  async function checkSession() {
+    try {
+      const res = await fetch('/api/admin/session', { credentials: 'same-origin' });
+      if (res.ok) return showDashboard();
+    } catch { /* fall through to login */ }
+    showLogin();
   }
 
   // ── Field helpers ───────────────────────────────────────────────────────────
@@ -415,7 +442,7 @@
   // ── Wire up ─────────────────────────────────────────────────────────────────
   $('loginBtn').addEventListener('click', login);
   $('passInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-  $('logoutBtn').addEventListener('click', () => logout());
+  $('logoutBtn').addEventListener('click', logout);
   $('newBtn').addEventListener('click', () => openEditor(null));
   $('editorForm').addEventListener('submit', save);
   $('deleteBtn').addEventListener('click', remove);
@@ -423,4 +450,5 @@
   for (const btn of document.querySelectorAll('[data-tab]')) {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   }
+  checkSession();
 })();

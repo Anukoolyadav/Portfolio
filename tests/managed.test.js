@@ -9,11 +9,11 @@ const pageView   = require('../src/services/pageView');
 const { isManaged } = require('../src/services/managedCollections');
 const { seedAll } = require('../scripts/seed');
 
-const PASS = 'test-admin-pass';
-process.env.ADMIN_PASS = PASS;
-const H = { 'x-admin-pass': PASS };
+const { loginAgent } = require('./helpers/auth');
 
 const app = listen();
+let admin;
+beforeAll(async () => { admin = await loginAgent(app); });
 const projectSeed    = require('../data/projects.seed.json').projects;
 const experienceSeed = require('../data/experience.seed.json').experience;
 const firstPublished = projectSeed.find(p => p.status === 'published');
@@ -41,9 +41,9 @@ describe.each([
 ])('%s: deleting everything in the admin', (name, base) => {
   test('keeps the empty state — no seed resurrection', async () => {
     await seedAll({ only: name });
-    const list = (await request(app).get(base).set(H).expect(200)).body;
+    const list = (await admin.get(base).expect(200)).body;
     expect(list.length).toBeGreaterThan(0);
-    for (const d of list) await request(app).delete(`${base}/${d.id}`).set(H).expect(200);
+    for (const d of list) await admin.delete(`${base}/${d.id}`).expect(200);
 
     const html = await home();
     expect(html).toContain(pageView.sections[name].empty);
@@ -52,9 +52,9 @@ describe.each([
 });
 
 test('any successful admin write marks the collection managed; failed writes do not', async () => {
-  await request(app).post('/api/admin/projects').set(H).send({ title: '' }).expect(400);
+  await admin.post('/api/admin/projects').send({ title: '' }).expect(400);
   expect(await isManaged('projects')).toBe(false);
-  await request(app).post('/api/admin/projects').set(H).send({ title: 'Managed now' }).expect(201);
+  await admin.post('/api/admin/projects').send({ title: 'Managed now' }).expect(201);
   expect(await isManaged('projects')).toBe(true);
   expect(await isManaged('experience')).toBe(false);
 });
@@ -77,7 +77,7 @@ describe('seed script and markers', () => {
   test('re-seed after an admin delete does not recreate the entry; --force does', async () => {
     await seedAll({ only: 'projects' });
     const target = await Project.findOne({ seedKey: firstPublished.seedKey });
-    await request(app).delete(`/api/admin/projects/${target.id}`).set(H).expect(200);
+    await admin.delete(`/api/admin/projects/${target.id}`).expect(200);
 
     expect((await seedAll({ only: 'projects' })).projects).toEqual({ skippedManaged: true });
     expect(await Project.exists({ seedKey: firstPublished.seedKey })).toBeNull();
@@ -112,8 +112,8 @@ test('the marker is exposed by no API', async () => {
   const responses = [
     await request(app).get('/api/projects'),
     await request(app).get('/api/experience'),
-    await request(app).get('/api/admin/projects').set(H),
-    await request(app).get('/api/admin/experience').set(H),
+    await admin.get('/api/admin/projects'),
+    await admin.get('/api/admin/experience'),
     await request(app).get('/')
   ];
   for (const res of responses) {
@@ -121,7 +121,7 @@ test('the marker is exposed by no API', async () => {
     expect(res.text).not.toMatch(/managed:|"managed"/);
   }
   for (const path of ['/api/settings', '/api/admin/settings']) {
-    await request(app).get(path).set(H).expect(404);
+    await admin.get(path).expect(404);
   }
 });
 

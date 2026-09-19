@@ -1,8 +1,15 @@
 require('dotenv').config();
 
-if (!process.env.ADMIN_PASS?.trim()) {
-  console.error('  ✖  ADMIN_PASS is not set. Refusing to start — set it in .env (see .env.example) or in the host dashboard.');
+const validateEnv = require('./src/config/validateEnv');
+
+const problems = validateEnv();
+if (problems.length) {
+  console.error('  ✖  Refusing to start — fix these environment variables (see .env.example):');
+  for (const p of problems) console.error(`     - ${p}`);
   process.exit(1);
+}
+if (process.env.ADMIN_PASS !== undefined) {
+  console.warn('  ⚠️  ADMIN_PASS is no longer used (replaced by ADMIN_PASS_HASH) — remove it from your environment.');
 }
 
 const { createApp } = require('./app');

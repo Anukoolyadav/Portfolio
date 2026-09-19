@@ -1,6 +1,7 @@
 // No DB connection in this file: simulates Mongo being down or unconfigured.
 const request = require('supertest');
 const listen  = require('./helpers/server');
+const { loginAgent, anonAgent } = require('./helpers/auth');
 const seed = require('../data/projects.seed.json').projects;
 
 const app  = listen();
@@ -44,12 +45,11 @@ describe('experience fallback (DB down)', () => {
 });
 
 test('admin CRUD returns 503 (not a hang) when the DB is down, once authenticated', async () => {
-  process.env.ADMIN_PASS = 'test-admin-pass';
+  const admin = await loginAgent(app);          // login itself has no DB dependency
   for (const path of ['/api/admin/projects', '/api/admin/experience']) {
-    await request(app).get(path).expect(401);
-    const res = await request(app).get(path).set('x-admin-pass', 'test-admin-pass').expect(503);
+    await anonAgent(app).get(path).expect(401);
+    const res = await admin.get(path).expect(503);
     expect(res.body.error).toMatch(/Database not ready/);
   }
-  // Login check has no DB dependency.
-  await request(app).get('/api/admin/session').set('x-admin-pass', 'test-admin-pass').expect(200);
+  await admin.get('/api/admin/session').expect(200);
 });

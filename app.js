@@ -2,11 +2,12 @@ const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 
-const pageView = require('./src/services/pageView');
+const pageView        = require('./src/services/pageView');
+const makeAdminRouter = require('./src/routes/adminRoutes');
 
 // Builds the Express app without connecting to the DB or listening,
-// so tests can import it directly.
-function createApp() {
+// so tests can import it directly. `options` lets tests tune per-app behaviour.
+function createApp(options = {}) {
   const app = express();
 
   app.use(express.json());
@@ -30,7 +31,7 @@ function createApp() {
   // Routes
   app.use('/api/projects',   require('./src/routes/projectRoutes'));
   app.use('/api/experience', require('./src/routes/experienceRoutes'));
-  app.use('/api/admin',      require('./src/routes/adminRoutes'));
+  app.use('/api/admin',      makeAdminRouter(options));
   app.use('/api/contact',    require('./src/routes/contactRoutes'));
 
   // Resume PDF download
