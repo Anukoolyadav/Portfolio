@@ -16,7 +16,7 @@ Personal portfolio website built with vanilla HTML/CSS/JS on a Node.js + Express
 - 3D diamond hover effect on contact links
 - Contact form that emails me via [Resend](https://resend.com)
 - Resume PDF download via server route
-- Password-protected admin panel (projects manager in progress)
+- Password-protected admin panel to add, edit, reorder (drag and drop), publish and delete Projects and Experience
 
 ---
 
@@ -44,6 +44,7 @@ portfolio/
 ├── scripts/seed.js         # Idempotent local seeding
 ├── tests/                  # Jest + Supertest
 ├── src/
+│   ├── admin/              # Shared admin CRUD router + input whitelist
 │   ├── config/db.js        # MongoDB connection (retries on failure)
 │   ├── middleware/
 │   │   ├── auth.js         # Admin password check (constant-time)
@@ -56,9 +57,9 @@ portfolio/
 │   └── utils/              # escapeHtml, slugify, URL checks
 ├── public/                 # Served as static files
 │   ├── index.html          # Portfolio page
-│   ├── admin.html          # Admin panel
+│   ├── admin.html          # Admin panel (Projects | Experience)
 │   ├── css/style.css
-│   └── js/main.js
+│   └── js/                 # main.js (site), admin.js (admin panel)
 ├── docs/project-doc.html   # Learning notes on how the project was built
 ├── Anukool_CV2026.pdf      # Resume served via /download/resume
 ├── render.yaml             # Render deployment config
@@ -119,7 +120,14 @@ npm test
 
 ## Admin
 
-Visit `/admin.html` and sign in with `ADMIN_PASS`. The dashboard is currently a shell; a projects manager (add / edit / reorder / publish projects) is being built.
+Visit `/admin.html` and sign in with `ADMIN_PASS`. Two tabs — **Projects** and **Experience** — each with:
+
+- a list you can reorder by dragging ⠿ (saved immediately),
+- an editor for every field, with per-field validation messages,
+- publish / unpublish (drafts are never shown on the site), plus a featured toggle for projects,
+- delete with confirmation.
+
+Changes appear on the public page immediately (the server-side render cache is invalidated on every write).
 
 ---
 
@@ -131,6 +139,12 @@ Visit `/admin.html` and sign in with `ADMIN_PASS`. The dashboard is currently a 
 | GET | `/api/projects/:slug` | — | One published project (404 for drafts) |
 | GET | `/api/experience` | — | Published experience/internship entries, sorted by `order` |
 | GET | `/api/admin/session` | ✓ | Verify admin password (`200 { ok: true }`) |
+| GET | `/api/admin/{projects,experience}` | ✓ | All entries incl. drafts, by order |
+| POST | `/api/admin/{projects,experience}` | ✓ | Create (draft by default) |
+| PUT | `/api/admin/{projects,experience}/:id` | ✓ | Update (whitelisted fields only) |
+| DELETE | `/api/admin/{projects,experience}/:id` | ✓ | Delete |
+| PATCH | `/api/admin/{projects,experience}/:id/publish` | ✓ | `{ "published": true \| false }` |
+| PATCH | `/api/admin/{projects,experience}/reorder` | ✓ | `{ "ids": [...] }` — every id exactly once |
 | POST | `/api/contact` | — | Send a contact-form message |
 | GET | `/download/resume` | — | Download resume PDF |
 | GET | `/health` | — | Health check |
