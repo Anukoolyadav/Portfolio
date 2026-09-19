@@ -36,6 +36,5 @@ app.listen(PORT, '0.0.0.0', () => {
     ? 'https://anukoolyadav.onrender.com'
     : `http://localhost:${PORT}`;
   console.log(`\n  Portfolio  →  ${base}`);
-  console.log(`  Admin      →  ${base}/admin.html`);
-  console.log(`  Password   →  ${process.env.ADMIN_PASS || 'anukool'}\n`);
+  console.log(`  Admin      →  ${base}/admin.html\n`);
 });
