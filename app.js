@@ -42,6 +42,15 @@ function createApp() {
     res.sendFile(filePath);
   });
 
+  // Last-resort error handler: generic JSON, never a stack trace or error text.
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+    if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON body.' });
+    if (err.type === 'entity.too.large')    return res.status(413).json({ error: 'Request body too large.' });
+    console.error('Unhandled error:', err.name || 'Error');
+    res.status(500).json({ error: 'Something went wrong.' });
+  });
+
   return app;
 }
 
