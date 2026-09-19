@@ -3,6 +3,7 @@ const db           = require('./helpers/db');
 const Project      = require('../src/models/Project');
 const projectsView = require('../src/services/projectsView');
 const { createApp } = require('../app');
+const seed = require('../data/projects.seed.json').projects;
 
 const app = createApp();
 
@@ -63,4 +64,33 @@ test('the raw template placeholder is never served', async () => {
     const res = await request(app).get(path).expect(200);
     expect(res.text).not.toContain(projectsView.PLACEHOLDER);
   }
+});
+
+describe('seed fallback vs empty state (DB connected)', () => {
+  const seedTitle = seed.find(p => p.status === 'published').title.replace(/&/g, '&amp;');
+
+  test('empty collection -> published seed projects', async () => {
+    const res = await request(app).get('/').expect(200);
+    expect(res.text).toContain(`<h3>${seedTitle}</h3>`);
+    expect(res.text).not.toContain('class="section-empty"');
+  });
+
+  test('documents exist but none published -> empty state, never the seed', async () => {
+    await Project.create({ title: 'Unpublished Only', status: 'draft' });
+    const res = await request(app).get('/').expect(200);
+    expect(res.text).toContain(projectsView.EMPTY_PROJECTS);
+    expect(res.text).not.toContain(seedTitle);
+    expect(res.text).not.toContain('Unpublished Only');
+  });
+
+  test('unpublishing the last project switches to the empty state after invalidate()', async () => {
+    const p = await Project.create({ title: 'Live One', status: 'published' });
+    expect((await request(app).get('/')).text).toContain('Live One');
+
+    await Project.updateOne({ _id: p._id }, { status: 'draft' });
+    projectsView.invalidate();
+    const html = (await request(app).get('/')).text;
+    expect(html).toContain(projectsView.EMPTY_PROJECTS);
+    expect(html).not.toContain(seedTitle);
+  });
 });

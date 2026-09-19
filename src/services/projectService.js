@@ -28,4 +28,10 @@ async function getPublishedBySlug(slug) {
   return doc ? toPublic(doc) : null;
 }
 
-module.exports = { PUBLIC_FIELDS, toPublic, listPublished, getPublishedBySlug };
+// Any document at all, regardless of status — distinguishes "empty collection"
+// (seed fallback) from "nothing published" (empty state).
+async function hasAny() {
+  return Boolean(await Project.exists({}));
+}
+
+module.exports = { PUBLIC_FIELDS, toPublic, listPublished, getPublishedBySlug, hasAny };

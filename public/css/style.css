@@ -903,6 +903,9 @@
 
     .tech-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
+    /* Shown when a server-rendered section has entries but none are published */
+    .section-empty { color: var(--muted); font-size: 0.88rem; line-height: 1.65; padding: 0.5rem 0; }
+
     .tech {
       font-family: 'Fira Code', monospace;
       font-size: 0.72rem;

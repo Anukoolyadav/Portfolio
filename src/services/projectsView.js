@@ -2,9 +2,11 @@
 //
 // - DB results are cached as full page HTML until invalidate() is called
 //   (call it after every admin write).
-// - If the DB is not ready, errors, or has no published projects, the seed file
-//   (published entries only) is rendered instead so the section never breaks.
-//   Fallback output is not cached, so the page switches to DB data once Mongo is up.
+// - Seed fallback (published seed entries) ONLY when the DB is not ready, errors,
+//   or the collection has zero documents. Fallback output is not cached, so the
+//   page switches to DB data once Mongo is up.
+// - If documents exist but none are published, an empty state is rendered —
+//   an admin delete/unpublish is never overridden by the seed file.
 const fs   = require('fs');
 const path = require('path');
 
@@ -99,10 +101,10 @@ function renderProject(p) {
          '      </div>';
 }
 
+const EMPTY_PROJECTS = '      <p class="section-empty">No projects to show right now — check back soon.</p>';
+
 function renderSection(items) {
-  if (!items.length) {
-    return '      <p class="proj-empty" style="color:var(--muted)">Projects coming soon.</p>';
-  }
+  if (!items.length) return EMPTY_PROJECTS;
   return items.map(renderProject).join('\n');
 }
 
@@ -115,8 +117,8 @@ async function getIndexHtml() {
   if (isReady()) {
     try {
       const items = await projects.listPublished();
-      if (items.length) {
-        cached = renderPage(items);
+      if (items.length || await projects.hasAny()) {
+        cached = renderPage(items);   // empty items -> empty state
         return cached;
       }
     } catch (err) {
@@ -130,4 +132,4 @@ function invalidate() {
   cached = null;
 }
 
-module.exports = { getIndexHtml, invalidate, renderSection, PLACEHOLDER };
+module.exports = { getIndexHtml, invalidate, renderSection, PLACEHOLDER, EMPTY_PROJECTS };
