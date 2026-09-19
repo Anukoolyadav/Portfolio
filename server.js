@@ -24,7 +24,6 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 connectDB();
 
 // Routes
-app.use('/api/posts',   require('./src/routes/postRoutes'));
 app.use('/api/admin',   require('./src/routes/adminRoutes'));
 app.use('/api/contact', require('./src/routes/contactRoutes'));
 

@@ -5,7 +5,7 @@ let dbReady = false;
 function connectDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri || uri.includes('<username>')) {
-    console.warn('  ⚠️  MONGODB_URI not set — blog API disabled, site still serves.');
+    console.warn('  ⚠️  MONGODB_URI not set — DB-backed features disabled, site still serves.');
     return;
   }
   mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 })
