@@ -197,6 +197,9 @@
 
     .bn-item:active .bn-icon-wrap { transform: scale(0.93) !important; }
 
+    /* Ripple on bottom-nav tap (was injected from main.js; moved here for the CSP) */
+    @keyframes bnRipple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2.8); opacity: 0; } }
+
     /* On small screens fall back to bottom bar */
     @media (max-width: 640px) {
       .bottom-nav {

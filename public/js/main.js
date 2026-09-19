@@ -9,6 +9,7 @@
       applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light');
     }
     applyTheme(localStorage.getItem('theme') || 'dark');
+    document.querySelector('.theme-toggle')?.addEventListener('click', toggleTheme);
 
     // ── Stars: 3 depth layers (now in fixed #space-bg) ──
     // Near = big + bright  →  far = tiny + dim
@@ -220,12 +221,6 @@
       wrap.appendChild(r);
       r.addEventListener('animationend', () => r.remove());
     }
-
-    (function injectBnKeyframes() {
-      const s = document.createElement('style');
-      s.textContent = '@keyframes bnRipple{0%{transform:scale(0);opacity:1}100%{transform:scale(2.8);opacity:0}}';
-      document.head.appendChild(s);
-    })();
 
     bnItems.forEach(item => {
       item.addEventListener('click', () => {
