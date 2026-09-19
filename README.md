@@ -38,14 +38,21 @@ Personal portfolio website built with vanilla HTML/CSS/JS on a Node.js + Express
 
 ```
 portfolio/
-├── server.js               # Express entry: static files, routes, /health, /download/resume
+├── server.js               # Entry: env checks, DB connect, listen
+├── app.js                  # Express app (routes, SSR home page) — imported by tests
+├── data/projects.seed.json # Seed + fallback project data
+├── scripts/seed-projects.js
+├── tests/                  # Jest + Supertest
 ├── src/
 │   ├── config/db.js        # MongoDB connection (retries on failure)
 │   ├── middleware/
 │   │   ├── auth.js         # Admin password check (constant-time)
 │   │   └── requireDB.js    # 503 until the DB is connected
-│   ├── controllers/        # Route handlers (contact form)
-│   └── routes/             # /api/admin, /api/contact
+│   ├── models/Project.js   # Project schema + validation
+│   ├── services/           # Project queries + server-side rendering/cache
+│   ├── controllers/        # Route handlers
+│   ├── routes/             # /api/projects, /api/admin, /api/contact
+│   └── utils/              # escapeHtml, slugify, URL checks
 ├── public/                 # Served as static files
 │   ├── index.html          # Portfolio page
 │   ├── admin.html          # Admin panel
@@ -94,6 +101,18 @@ npm start        # or: npm run dev (auto-restart with nodemon)
 
 Open `http://localhost:3000`.
 
+**5. (Optional) Seed projects into your local DB**
+```bash
+npm run seed              # inserts missing projects from data/projects.seed.json
+npm run seed -- --update  # also overwrite existing ones with seed values
+```
+The seed script refuses to run unless `MONGODB_URI` points to localhost (override with `--allow-remote`).
+
+**6. Run tests** (needs a local MongoDB on `127.0.0.1:27017`; uses a separate `portfolio_test` DB)
+```bash
+npm test
+```
+
 ---
 
 ## Admin
@@ -106,6 +125,8 @@ Visit `/admin.html` and sign in with `ADMIN_PASS`. The dashboard is currently a 
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
+| GET | `/api/projects` | — | Published projects, sorted by `order` |
+| GET | `/api/projects/:slug` | — | One published project (404 for drafts) |
 | GET | `/api/admin/session` | ✓ | Verify admin password (`200 { ok: true }`) |
 | POST | `/api/contact` | — | Send a contact-form message |
 | GET | `/download/resume` | — | Download resume PDF |
@@ -130,7 +151,7 @@ Auth: send the `x-admin-pass: <password>` header.
 | Hero | Name, bio, social links, CTA buttons |
 | About | Summary + animated stat cards |
 | Skills | Horizontal progress bars (4 categories) |
-| Projects | Row-based project list with tech tags |
+| Projects | Server-rendered from MongoDB (falls back to `data/projects.seed.json` if the DB is unavailable) |
 | Experience | Timeline of work history |
 | Certifications | Row list with issuer |
 | Achievements | LeetCode, HackerRank, Research |
