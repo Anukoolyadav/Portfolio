@@ -359,7 +359,7 @@
       const p = document.getElementById('passInput').value.trim();
       if (!p) return;
       password = p;
-      fetch(`${API}/admin/posts`, { headers: { 'x-admin-pass': p } })
+      fetch(`${API}/admin/session`, { headers: { 'x-admin-pass': p } })
         .then(r => {
           if (!r.ok) { showLoginError(); return; }
           document.getElementById('login-screen').style.display = 'none';
