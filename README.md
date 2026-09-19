@@ -48,10 +48,11 @@ portfolio/
 │   ├── middleware/
 │   │   ├── auth.js         # Admin password check (constant-time)
 │   │   └── requireDB.js    # 503 until the DB is connected
-│   ├── models/Project.js   # Project schema + validation
-│   ├── services/           # Project queries + server-side rendering/cache
+│   ├── models/             # Project, Experience + shared validators
+│   ├── services/           # Public queries + page rendering/cache (pageView)
+│   ├── views/              # Section markup (projects, experience)
 │   ├── controllers/        # Route handlers
-│   ├── routes/             # /api/projects, /api/admin, /api/contact
+│   ├── routes/             # /api/projects, /api/experience, /api/admin, /api/contact
 │   └── utils/              # escapeHtml, slugify, URL checks
 ├── public/                 # Served as static files
 │   ├── index.html          # Portfolio page
@@ -128,6 +129,7 @@ Visit `/admin.html` and sign in with `ADMIN_PASS`. The dashboard is currently a 
 |--------|-------|------|-------------|
 | GET | `/api/projects` | — | Published projects, sorted by `order` |
 | GET | `/api/projects/:slug` | — | One published project (404 for drafts) |
+| GET | `/api/experience` | — | Published experience/internship entries, sorted by `order` |
 | GET | `/api/admin/session` | ✓ | Verify admin password (`200 { ok: true }`) |
 | POST | `/api/contact` | — | Send a contact-form message |
 | GET | `/download/resume` | — | Download resume PDF |
@@ -147,13 +149,16 @@ Auth: send the `x-admin-pass: <password>` header.
 
 ## Sections
 
+Projects and Experience are server-rendered from MongoDB. If the DB is unreachable or a collection is empty, the published entries in `data/*.seed.json` are shown instead; if entries exist but none are published, the section shows an empty state.
+
+
 | Section | Description |
 |---------|-------------|
 | Hero | Name, bio, social links, CTA buttons |
 | About | Summary + animated stat cards |
 | Skills | Horizontal progress bars (4 categories) |
-| Projects | Server-rendered from MongoDB (falls back to `data/projects.seed.json` if the DB is unavailable) |
-| Experience | Timeline of work history |
+| Projects | Server-rendered from MongoDB |
+| Experience | Internship/job timeline, server-rendered from MongoDB |
 | Certifications | Row list with issuer |
 | Achievements | LeetCode, HackerRank, Research |
 | Education | Academic background |
