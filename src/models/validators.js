@@ -27,4 +27,24 @@ function checkDateOrder(doc) {
   }
 }
 
-module.exports = { optionalUrl, maxItems, stringList, checkDateOrder };
+// Stable identity for seeded documents. Only scripts/seed.js sets it; documents
+// created from the admin never have the field (absent, not null), which the
+// sparse unique index relies on. Hidden from queries (select: false) and from
+// toJSON so it never appears in an API response.
+function seedKeyPlugin(schema) {
+  schema.add({
+    seedKey: { type: String, trim: true, maxlength: 100, select: false }
+  });
+  schema.index({ seedKey: 1 }, { unique: true, sparse: true });
+
+  const previous = schema.get('toJSON') || {};
+  schema.set('toJSON', {
+    ...previous,
+    transform(doc, ret, options) {
+      delete ret.seedKey;
+      return typeof previous.transform === 'function' ? previous.transform(doc, ret, options) : ret;
+    }
+  });
+}
+
+module.exports = { optionalUrl, maxItems, stringList, checkDateOrder, seedKeyPlugin };

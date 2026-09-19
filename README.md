@@ -108,7 +108,7 @@ npm run seed                      # inserts missing entries from data/*.seed.jso
 npm run seed -- --update          # also overwrite existing ones with seed values
 npm run seed -- --only=experience # one resource only (projects | experience)
 ```
-The seed script refuses to run unless `MONGODB_URI` points to localhost (override with `--allow-remote`).
+The seed script refuses to run unless `MONGODB_URI` points to localhost (override with `--allow-remote`). Seed entries are matched by a stable `seedKey`, so renaming a seeded project or editing a seeded experience entry in the admin never creates a duplicate on re-seed. Documents created in the admin have no `seedKey`.
 
 **6. Run tests** (needs a local MongoDB on `127.0.0.1:27017`; uses a separate `portfolio_test` DB)
 ```bash

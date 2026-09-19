@@ -1,6 +1,7 @@
 {
   "experience": [
     {
+      "seedKey": "experience-cipher-schools",
       "type": "internship",
       "company": "Cipher Schools",
       "role": "Training Intern",
@@ -15,6 +16,7 @@
       "order": 1
     },
     {
+      "seedKey": "experience-veriterra",
       "type": "job",
       "company": "Veriterra",
       "role": "Full-Stack Developer",

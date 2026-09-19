@@ -6,7 +6,10 @@
 //   npm run seed -- --only=projects   seed one resource (projects | experience)
 //   npm run seed -- --allow-remote    permit a non-localhost MONGODB_URI (off by default)
 //
-// Safe to re-run. The connection string is never printed.
+// Entries are matched by their stable `seedKey`, so editing a seeded document's
+// slug/company/role/dates in the admin never causes a duplicate on re-seed.
+// Documents seeded before seedKey existed are backfilled once by their old
+// identity (legacyMatch). Safe to re-run. The connection string is never printed.
 require('dotenv').config();
 const path       = require('path');
 const mongoose   = require('mongoose');
@@ -14,51 +17,77 @@ const Project    = require('../src/models/Project');
 const Experience = require('../src/models/Experience');
 const { isLocalMongoUri } = require('../src/utils/mongoUri');
 
-// How each resource is identified for idempotent upserts.
 const RESOURCES = {
   projects: {
-    model: Project,
-    file:  'projects.seed.json',
-    key:   'projects',
-    match: p => ({ slug: p.slug })
+    model:       Project,
+    file:        'projects.seed.json',
+    key:         'projects',
+    legacyMatch: p => ({ slug: p.slug })
   },
   experience: {
-    model: Experience,
-    file:  'experience.seed.json',
-    key:   'experience',
-    match: e => ({ company: e.company, role: e.role, startDate: new Date(e.startDate) })
+    model:       Experience,
+    file:        'experience.seed.json',
+    key:         'experience',
+    legacyMatch: e => ({ company: e.company, role: e.role, startDate: new Date(e.startDate) })
   }
 };
 
-const argv        = process.argv.slice(2);
-const allowRemote = argv.includes('--allow-remote');
-const update      = argv.includes('--update');
-const only        = argv.find(a => a.startsWith('--only='))?.slice('--only='.length);
+function loadItems({ file, key }) {
+  return require(path.join(__dirname, '..', 'data', file))[key];
+}
 
-async function seedResource(name, { model, file, key, match }) {
-  const items = require(path.join(__dirname, '..', 'data', file))[key];
+// Seeds one resource on the current mongoose connection.
+async function seedResource({ model, legacyMatch, ...resource }, { update = false, items } = {}) {
+  items = items || loadItems(resource);
 
   // Validate everything up front so a bad entry doesn't leave a half-seeded collection.
-  for (const item of items) await new model(item).validate();
-  await model.init();   // make sure indexes exist
-
-  const counts = { inserted: 0, updated: 0, skipped: 0 };
   for (const item of items) {
-    const filter = match(item);
-    if (!(await model.exists(filter))) {
-      await model.create(item);
-      counts.inserted++;
-    } else if (update) {
-      await model.updateOne(filter, { $set: item }, { runValidators: true });
-      counts.updated++;
-    } else {
-      counts.skipped++;
-    }
+    if (!item.seedKey) throw new Error('Every seed entry needs a seedKey.');
+    await new model(item).validate();
   }
-  console.log(`  ${name.padEnd(10)} ${counts.inserted} inserted, ${counts.updated} updated, ${counts.skipped} unchanged`);
+  await model.init();   // make sure indexes (incl. the unique sparse seedKey) exist
+
+  const counts = { inserted: 0, updated: 0, backfilled: 0, skipped: 0 };
+  for (const item of items) {
+    if (await model.exists({ seedKey: item.seedKey })) {
+      if (update) {
+        await model.updateOne({ seedKey: item.seedKey }, { $set: item }, { runValidators: true });
+        counts.updated++;
+      } else {
+        counts.skipped++;
+      }
+      continue;
+    }
+
+    // One-time backfill: a document seeded before seedKey existed.
+    const legacy = await model.findOne({ ...legacyMatch(item), seedKey: { $exists: false } }).select('_id');
+    if (legacy) {
+      await model.updateOne({ _id: legacy._id }, { $set: update ? item : { seedKey: item.seedKey } },
+                            { runValidators: true });
+      counts.backfilled++;
+      continue;
+    }
+
+    await model.create(item);
+    counts.inserted++;
+  }
+  return counts;
+}
+
+async function seedAll({ update = false, only } = {}) {
+  const results = {};
+  for (const [name, resource] of Object.entries(RESOURCES)) {
+    if (!only || only === name) results[name] = await seedResource(resource, { update });
+  }
+  return results;
 }
 
 async function main() {
+  const argv        = process.argv.slice(2);
+  const allowRemote = argv.includes('--allow-remote');
+  const update      = argv.includes('--update');
+  const only        = argv.find(a => a.startsWith('--only='))?.slice('--only='.length);
+
   const uri = process.env.MONGODB_URI;
   if (!uri) {
     console.error('✖ MONGODB_URI is not set.');
@@ -76,16 +105,22 @@ async function main() {
 
   await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
   console.log(`✓ Seeding (${allowRemote ? 'remote allowed' : 'local'}):`);
-  for (const [name, resource] of Object.entries(RESOURCES)) {
-    if (!only || only === name) await seedResource(name, resource);
+  const results = await seedAll({ update, only });
+  for (const [name, c] of Object.entries(results)) {
+    console.log(`  ${name.padEnd(10)} ${c.inserted} inserted, ${c.backfilled} backfilled, ` +
+                `${c.updated} updated, ${c.skipped} unchanged`);
   }
 }
 
-main()
-  .catch(err => {
-    // Validation errors are safe to show (field names); anything else stays generic.
-    if (err?.name === 'ValidationError') console.error('✖ Seed data invalid:', Object.keys(err.errors).join(', '));
-    else console.error('✖ Seed failed:', err?.name || 'Error');
-    process.exitCode = 1;
-  })
-  .finally(() => mongoose.disconnect());
+if (require.main === module) {
+  main()
+    .catch(err => {
+      // Validation errors are safe to show (field names); anything else stays generic.
+      if (err?.name === 'ValidationError') console.error('✖ Seed data invalid:', Object.keys(err.errors).join(', '));
+      else console.error('✖ Seed failed:', err?.name || 'Error');
+      process.exitCode = 1;
+    })
+    .finally(() => mongoose.disconnect());
+}
+
+module.exports = { RESOURCES, seedResource, seedAll };

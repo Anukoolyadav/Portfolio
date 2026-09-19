@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { optionalUrl, stringList, checkDateOrder } = require('./validators');
+const { optionalUrl, stringList, checkDateOrder, seedKeyPlugin } = require('./validators');
 
 const TYPES    = ['internship', 'job'];
 const STATUSES = ['draft', 'published'];
@@ -24,6 +24,8 @@ const experienceSchema = new mongoose.Schema(
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+experienceSchema.plugin(seedKeyPlugin);
 
 experienceSchema.pre('validate', function () {
   checkDateOrder(this);

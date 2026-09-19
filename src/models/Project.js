@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify  = require('../utils/slugify');
-const { optionalUrl, maxItems, stringList, checkDateOrder } = require('./validators');
+const { optionalUrl, maxItems, stringList, checkDateOrder, seedKeyPlugin } = require('./validators');
 
 const CATEGORIES = ['ml', 'fullstack', 'research', 'game'];
 const STATUSES   = ['draft', 'published'];
@@ -44,6 +44,8 @@ const projectSchema = new mongoose.Schema(
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+projectSchema.plugin(seedKeyPlugin);
 
 projectSchema.pre('validate', function () {
   if (!this.slug && this.title) this.slug = slugify(this.title);

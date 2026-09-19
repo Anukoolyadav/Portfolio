@@ -1,6 +1,7 @@
 {
   "projects": [
     {
+      "seedKey": "project-air-quality-pm25",
       "slug": "air-quality-pm25-prediction",
       "title": "Air Quality Monitoring & PM2.5 Prediction Using Deep Learning",
       "icon": "🌫️",
@@ -25,6 +26,7 @@
       "order": 1
     },
     {
+      "seedKey": "project-crop-maturity",
       "slug": "crop-maturity-stage-detection",
       "title": "Crop Maturity Stage Detection from Field Images",
       "icon": "🌾",
@@ -49,6 +51,7 @@
       "order": 2
     },
     {
+      "seedKey": "project-veriterra",
       "slug": "veriterra",
       "title": "Veriterra — Waste Traceability SaaS",
       "icon": "♻️",
