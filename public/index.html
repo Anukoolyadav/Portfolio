@@ -53,13 +53,6 @@
       <span class="bn-label">Projects</span>
       <span class="bn-dot"></span>
     </a>
-    <a class="bn-item" href="#blog" data-section="blog" aria-label="Blog">
-      <div class="bn-icon-wrap">
-        <svg class="bn-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </div>
-      <span class="bn-label">Blog</span>
-      <span class="bn-dot"></span>
-    </a>
     <a class="bn-item" href="#certificates" data-section="certificates" aria-label="Certifications">
       <div class="bn-icon-wrap">
         <svg class="bn-svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M9 22l3-3 3 3V14.5a6 6 0 10-6 0V22z"/></svg>
@@ -283,18 +276,6 @@
     </div>
   </section>
 
-  <!-- BLOG -->
-  <section id="blog">
-    <div class="reveal">
-      <div class="section-label">Thoughts &amp; Notes</div>
-      <h2 class="sec-title">Blog &amp; <em>Posts</em></h2>
-      <div class="sec-bar"></div>
-    </div>
-    <div class="blog-grid" id="blog-grid">
-      <div class="blog-loading"><i class="fas fa-circle-notch fa-spin" style="margin-right:8px"></i> Loading posts…</div>
-    </div>
-  </section>
-
   <!-- EXPERIENCE -->
   <section id="experience">
     <div class="reveal">
@@ -489,22 +470,6 @@
   <footer>
     <p>Designed &amp; built by <span>Anukool Yadav</span> · 2026</p>
   </footer>
-
-  <!-- POST MODAL -->
-  <div class="modal-overlay" id="postModal" onclick="handleModalClick(event)">
-    <div class="modal-box" id="modalBox">
-      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-      <div class="modal-header">
-        <div class="modal-tags" id="modalTags"></div>
-        <h2 id="modalTitle"></h2>
-        <div class="modal-date" id="modalDate"></div>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
-
-  <!-- marked.js for markdown rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script src="/js/main.js"></script>
 </body>
