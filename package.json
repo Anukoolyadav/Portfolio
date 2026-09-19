@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "npx nodemon server.js",
-    "seed": "node scripts/seed-projects.js",
+    "seed": "node scripts/seed.js",
     "test": "jest --runInBand"
   },
   "engines": {

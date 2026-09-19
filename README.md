@@ -40,8 +40,8 @@ Personal portfolio website built with vanilla HTML/CSS/JS on a Node.js + Express
 portfolio/
 ├── server.js               # Entry: env checks, DB connect, listen
 ├── app.js                  # Express app (routes, SSR home page) — imported by tests
-├── data/projects.seed.json # Seed + fallback project data
-├── scripts/seed-projects.js
+├── data/*.seed.json        # Seed + fallback data (projects, experience)
+├── scripts/seed.js         # Idempotent local seeding
 ├── tests/                  # Jest + Supertest
 ├── src/
 │   ├── config/db.js        # MongoDB connection (retries on failure)
@@ -101,10 +101,11 @@ npm start        # or: npm run dev (auto-restart with nodemon)
 
 Open `http://localhost:3000`.
 
-**5. (Optional) Seed projects into your local DB**
+**5. (Optional) Seed projects and experience into your local DB**
 ```bash
-npm run seed              # inserts missing projects from data/projects.seed.json
-npm run seed -- --update  # also overwrite existing ones with seed values
+npm run seed                      # inserts missing entries from data/*.seed.json
+npm run seed -- --update          # also overwrite existing ones with seed values
+npm run seed -- --only=experience # one resource only (projects | experience)
 ```
 The seed script refuses to run unless `MONGODB_URI` points to localhost (override with `--allow-remote`).
 
