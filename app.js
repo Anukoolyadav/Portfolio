@@ -6,6 +6,7 @@ const pageView           = require('./src/services/pageView');
 const makeAdminRouter    = require('./src/routes/adminRoutes');
 const makeLoginRateLimit = require('./src/middleware/loginRateLimit');
 const parseTrustProxy    = require('./src/config/trustProxy');
+const sameOrigin         = require('./src/middleware/sameOrigin');
 
 // Builds the Express app without connecting to the DB or listening,
 // so tests can import it directly. `options` lets tests tune per-app behaviour:
@@ -39,7 +40,7 @@ function createApp(options = {}) {
   // Routes
   app.use('/api/projects',   require('./src/routes/projectRoutes'));
   app.use('/api/experience', require('./src/routes/experienceRoutes'));
-  app.use('/api/admin',      makeAdminRouter({ loginLimiter: makeLoginRateLimit(options.loginRateLimit) }));
+  app.use('/api/admin',      sameOrigin, makeAdminRouter({ loginLimiter: makeLoginRateLimit(options.loginRateLimit) }));
   app.use('/api/contact',    require('./src/routes/contactRoutes'));
 
   // Resume PDF download
