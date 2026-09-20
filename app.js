@@ -7,6 +7,7 @@ const makeAdminRouter    = require('./src/routes/adminRoutes');
 const makeLoginRateLimit = require('./src/middleware/loginRateLimit');
 const parseTrustProxy    = require('./src/config/trustProxy');
 const sameOrigin         = require('./src/middleware/sameOrigin');
+const securityHeaders    = require('./src/config/security');
 
 // Builds the Express app without connecting to the DB or listening,
 // so tests can import it directly. `options` lets tests tune per-app behaviour:
@@ -18,6 +19,8 @@ function createApp(options = {}) {
   // Off by default. Behind Nginx set TRUST_PROXY=1 so req.ip (used by the login
   // rate limiter) is the real client, not the proxy.
   app.set('trust proxy', parseTrustProxy(options.trustProxy ?? process.env.TRUST_PROXY));
+  app.disable('x-powered-by');
+  app.use(securityHeaders());
 
   app.use(express.json());
 
