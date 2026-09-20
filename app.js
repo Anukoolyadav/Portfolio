@@ -2,13 +2,21 @@ const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 
-const pageView        = require('./src/services/pageView');
-const makeAdminRouter = require('./src/routes/adminRoutes');
+const pageView           = require('./src/services/pageView');
+const makeAdminRouter    = require('./src/routes/adminRoutes');
+const makeLoginRateLimit = require('./src/middleware/loginRateLimit');
+const parseTrustProxy    = require('./src/config/trustProxy');
 
 // Builds the Express app without connecting to the DB or listening,
-// so tests can import it directly. `options` lets tests tune per-app behaviour.
+// so tests can import it directly. `options` lets tests tune per-app behaviour:
+//   trustProxy      overrides TRUST_PROXY
+//   loginRateLimit  { windowMs, limit } overrides the login limiter defaults
 function createApp(options = {}) {
   const app = express();
+
+  // Off by default. Behind Nginx set TRUST_PROXY=1 so req.ip (used by the login
+  // rate limiter) is the real client, not the proxy.
+  app.set('trust proxy', parseTrustProxy(options.trustProxy ?? process.env.TRUST_PROXY));
 
   app.use(express.json());
 
@@ -31,7 +39,7 @@ function createApp(options = {}) {
   // Routes
   app.use('/api/projects',   require('./src/routes/projectRoutes'));
   app.use('/api/experience', require('./src/routes/experienceRoutes'));
-  app.use('/api/admin',      makeAdminRouter(options));
+  app.use('/api/admin',      makeAdminRouter({ loginLimiter: makeLoginRateLimit(options.loginRateLimit) }));
   app.use('/api/contact',    require('./src/routes/contactRoutes'));
 
   // Resume PDF download

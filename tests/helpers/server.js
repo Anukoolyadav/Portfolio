@@ -8,8 +8,12 @@ const { createApp } = require('../../app');
 //
 // Binding is asynchronous, so a beforeAll waits for 'listening' — tests can rely
 // on server.address() (e.g. to build a same-origin Origin header).
-module.exports = function listen(options) {
-  const server = createApp(options).listen(0, '127.0.0.1');
+//
+// Login rate limiting is effectively off by default here so tests that make
+// failed logins on purpose don't lock themselves out; tests/ratelimit.test.js
+// passes its own strict limits.
+module.exports = function listen(options = {}) {
+  const server = createApp({ loginRateLimit: { limit: 10000 }, ...options }).listen(0, '127.0.0.1');
   beforeAll(async () => {
     if (!server.listening) await once(server, 'listening');
   });
