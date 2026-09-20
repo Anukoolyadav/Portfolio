@@ -16,7 +16,8 @@ Personal portfolio website built with vanilla HTML/CSS/JS on a Node.js + Express
 - 3D diamond hover effect on contact links
 - Contact form that emails me via [Resend](https://resend.com)
 - Resume PDF download via server route
-- Password-protected admin panel to add, edit, reorder (drag and drop), publish and delete Projects and Experience
+- Password-protected admin panel (bcrypt + signed session cookie) to add, edit, reorder (drag and drop), publish and delete Projects and Experience
+- Hardened: CSP via helmet, login rate limiting, same-origin checks on admin writes
 
 ---
 
@@ -45,6 +46,8 @@ portfolio/
 ├── tests/                  # Jest + Supertest
 ├── src/
 │   ├── admin/              # Shared admin CRUD router + input whitelist
+│   ├── auth/session.js     # Signed session cookie (HMAC)
+│   ├── config/             # DB, env validation, security headers, trust proxy
 │   ├── config/db.js        # MongoDB connection (retries on failure)
 │   ├── middleware/
 │   │   ├── auth.js         # Admin password check (constant-time)
@@ -88,11 +91,19 @@ cp .env.example .env
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `ADMIN_PASS` | **Yes** — server refuses to start without it | Admin panel password |
+| `ADMIN_PASS_HASH` | **Yes** — server refuses to start without it | bcrypt hash of the admin password: `npm run hash-password` |
+| `SESSION_SECRET` | **Yes** — min 32 chars | Signs the admin session cookie: `openssl rand -hex 32` |
 | `MONGODB_URI` | No — DB features disabled if unset | e.g. `mongodb://127.0.0.1:27017/portfolio` for local MongoDB |
 | `RESEND_API_KEY` | No — contact form returns 503 if unset | Resend API key |
 | `PORT` | No (default `3000`) | HTTP port |
-| `NODE_ENV` | No | `development` / `production` |
+| `NODE_ENV` | No | `development` / `production` (production ⇒ Secure cookie, HSTS) |
+| `TRUST_PROXY` | No (default off) | `1` behind a single reverse proxy, so rate limiting sees real client IPs |
+| `LOGIN_RATE_LIMIT_MAX` | No (default `5`) | Failed sign-ins allowed per window |
+| `LOGIN_RATE_LIMIT_WINDOW_MS` | No (default `900000`) | Rate-limit window |
+
+> `ADMIN_PASS_HASH` contains `$` characters. In `.env` it works quoted or unquoted
+> (dotenv 16 does not expand variables); single quotes are the safest habit. In a
+> hosting dashboard (Render) paste the raw hash **without** quotes.
 
 > Never commit `.env`. It is git-ignored.
 
@@ -120,7 +131,7 @@ npm test
 
 ## Admin
 
-Visit `/admin.html` and sign in with `ADMIN_PASS`. Two tabs — **Projects** and **Experience** — each with:
+Visit `/admin.html` and sign in with your admin password. Two tabs — **Projects** and **Experience** — each with:
 
 - a list you can reorder by dragging ⠿ (saved immediately),
 - an editor for every field, with per-field validation messages,
@@ -128,6 +139,24 @@ Visit `/admin.html` and sign in with `ADMIN_PASS`. Two tabs — **Projects** and
 - delete with confirmation.
 
 Changes appear on the public page immediately (the server-side render cache is invalidated on every write).
+
+### How login works
+
+1. `POST /api/admin/login` compares the password against `ADMIN_PASS_HASH` with bcrypt.
+2. On success the server sets `admin_session`: an HMAC-signed token in a cookie that is
+   `HttpOnly`, `SameSite=Strict`, `Path=/api/admin`, 8 hours, and `Secure` when `NODE_ENV=production`.
+   The password is never stored in JavaScript or in browser storage, and the cookie cannot be read by scripts.
+3. Every admin request is authenticated by that cookie. A reload keeps you signed in until it expires.
+4. `POST /api/admin/logout` clears it.
+
+Extra protections: **5 failed sign-ins per IP per 15 minutes** (a lockout returns `429`), and
+state-changing admin requests must be **same-origin** (`Origin`/`Referer` host must match `Host`, else `403`).
+
+> **Behind a reverse proxy**, pass the Host header through unchanged or every admin write will be
+> rejected: `proxy_set_header Host $host;` in Nginx. Set `TRUST_PROXY=1` there too.
+
+> Sessions are stateless: logging out clears your cookie, but an already-issued token stays valid
+> until it expires. To invalidate every session at once, change `SESSION_SECRET` and restart.
 
 ---
 
@@ -138,7 +167,9 @@ Changes appear on the public page immediately (the server-side render cache is i
 | GET | `/api/projects` | — | Published projects, sorted by `order` |
 | GET | `/api/projects/:slug` | — | One published project (404 for drafts) |
 | GET | `/api/experience` | — | Published experience/internship entries, sorted by `order` |
-| GET | `/api/admin/session` | ✓ | Verify admin password (`200 { ok: true }`) |
+| POST | `/api/admin/login` | — | `{ "password": "…" }` → sets the session cookie (rate limited) |
+| POST | `/api/admin/logout` | — | Clears the session cookie |
+| GET | `/api/admin/session` | ✓ | `200 { ok: true }` while signed in |
 | GET | `/api/admin/{projects,experience}` | ✓ | All entries incl. drafts, by order |
 | POST | `/api/admin/{projects,experience}` | ✓ | Create (draft by default) |
 | PUT | `/api/admin/{projects,experience}/:id` | ✓ | Update (whitelisted fields only) |
@@ -149,13 +180,13 @@ Changes appear on the public page immediately (the server-side render cache is i
 | GET | `/download/resume` | — | Download resume PDF |
 | GET | `/health` | — | Health check |
 
-Auth: send the `x-admin-pass: <password>` header.
+Auth (✓): the `admin_session` cookie from `POST /api/admin/login`. State-changing admin requests also need a same-origin `Origin`/`Referer`.
 
 ---
 
 ## Deployment
 
-**Today — Render.** The repo includes a `render.yaml` blueprint (`npm install` → `npm start`, health check on `/health`). Set `ADMIN_PASS`, `MONGODB_URI` and `RESEND_API_KEY` in the Render dashboard's Environment tab.
+**Today — Render.** The repo includes a `render.yaml` blueprint (`npm install` → `npm start`, health check on `/health`). Set `ADMIN_PASS_HASH`, `SESSION_SECRET`, `MONGODB_URI`, `RESEND_API_KEY` and `TRUST_PROXY=1` in the Render dashboard's Environment tab.
 
 **Planned — AWS EC2** behind Nginx with Let's Encrypt HTTPS, a process manager, a custom domain, and GitHub Actions CI/CD.
 
