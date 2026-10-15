@@ -9,8 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/app-build/assets/index.css">
 </head>
 <body>
+  <!-- Phase 1 Anukool OS shell. Legacy sections below remain server-rendered for
+       API/admin compatibility and are visually tucked away by the client shell. -->
+  <div id="root"></div>
+  <script type="module" src="/app-build/assets/index.js"></script>
+  <div id="legacy-content" aria-hidden="true">
 
   <!-- Fixed space background — stars live here, span full page depth -->
   <div id="space-bg">
@@ -25,7 +31,7 @@
   <!-- TOP NAV: logo + theme only -->
   <nav id="nav">
     <a href="#hero" class="nav-logo">Anukool<span>.</span></a>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light / dark mode">
+    <button class="theme-toggle" type="button" title="Toggle light / dark mode" aria-label="Toggle light / dark mode">
       <i class="fas fa-moon"></i>
     </button>
   </nav>
@@ -51,13 +57,6 @@
         <svg class="bn-svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
       </div>
       <span class="bn-label">Projects</span>
-      <span class="bn-dot"></span>
-    </a>
-    <a class="bn-item" href="#blog" data-section="blog" aria-label="Blog">
-      <div class="bn-icon-wrap">
-        <svg class="bn-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </div>
-      <span class="bn-label">Blog</span>
       <span class="bn-dot"></span>
     </a>
     <a class="bn-item" href="#certificates" data-section="certificates" aria-label="Certifications">
@@ -250,48 +249,7 @@
       <div class="sec-bar"></div>
     </div>
     <div class="proj-list">
-      <div class="proj-row reveal">
-        <div class="proj-row-left">
-          <div class="proj-icon">🌫️</div>
-          <div class="proj-date">Oct 2025<br>Nov 2025</div>
-        </div>
-        <div>
-          <h3>Air Quality Monitoring &amp; PM2.5 Prediction Using Deep Learning</h3>
-          <ul>
-            <li>Compared CNN, LSTM, and CNN-LSTM hybrid models for PM2.5 forecasting, achieving ~22% lower RMSE and R² up to 0.37 over baseline models.</li>
-            <li>Built end-to-end preprocessing pipeline — normalization, temporal lag features, rolling statistics — across 6,000+ time-series samples.</li>
-            <li>Performed comprehensive error analysis identifying systematic under-prediction at high pollution levels.</li>
-          </ul>
-          <div class="tech-row"><span class="tech">Python</span><span class="tech">TensorFlow</span><span class="tech">Keras</span><span class="tech">CNN</span><span class="tech">LSTM</span><span class="tech">Scikit-Learn</span></div>
-        </div>
-      </div>
-      <div class="proj-row reveal">
-        <div class="proj-row-left">
-          <div class="proj-icon">🌾</div>
-          <div class="proj-date">Feb 2026<br>Apr 2026</div>
-        </div>
-        <div>
-          <h3>Crop Maturity Stage Detection from Field Images</h3>
-          <ul>
-            <li>Built a crop maturity classification system using VGG-16, ResNet-50, and DenseNet-121 to identify Early, Mid, and Mature growth stages.</li>
-            <li>Designed end-to-end image pipeline with resizing, normalization, augmentation, and feature extraction for robust real-world performance.</li>
-            <li>Achieved 89.8% accuracy with VGG-16 on a dataset of 3,300+ agricultural images.</li>
-          </ul>
-          <div class="tech-row"><span class="tech">Python</span><span class="tech">PyTorch</span><span class="tech">VGG-16</span><span class="tech">ResNet-50</span><span class="tech">DenseNet-121</span><span class="tech">Computer Vision</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- BLOG -->
-  <section id="blog">
-    <div class="reveal">
-      <div class="section-label">Thoughts &amp; Notes</div>
-      <h2 class="sec-title">Blog &amp; <em>Posts</em></h2>
-      <div class="sec-bar"></div>
-    </div>
-    <div class="blog-grid" id="blog-grid">
-      <div class="blog-loading"><i class="fas fa-circle-notch fa-spin" style="margin-right:8px"></i> Loading posts…</div>
+<!--#PROJECTS#-->
     </div>
   </section>
 
@@ -303,38 +261,7 @@
       <div class="sec-bar"></div>
     </div>
     <div class="timeline reveal">
-      <div class="tl-item">
-        <div class="tl-card">
-          <div class="tl-head">
-            <div><div class="tl-company">Cipher Schools</div><div class="tl-role">Training Intern</div></div>
-            <span class="tl-period">Jan 2025 – Feb 2025</span>
-          </div>
-          <ul>
-            <li>Developed interactive learning modules and coding challenges to enhance understanding of DSA and Machine Learning.</li>
-            <li>Engineered problem-solving exercises that strengthened algorithmic thinking and coding proficiency among learners.</li>
-            <li>Authored well-documented code and debugged critical issues to maintain system efficiency.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-card">
-          <!-- Screenshot placeholder — drop the file at public/img/veriterra.png,
-               then replace this comment with:
-               <img src="/img/veriterra.png" alt="Veriterra dashboard showing waste entries and chain-of-custody status"> -->
-          <div class="tl-head">
-            <div><div class="tl-company">Veriterra</div><div class="tl-role">Full-Stack Developer</div></div>
-            <span class="tl-period">Jun 2026 – Present</span>
-          </div>
-          <ul>
-            <li>Designing and building a multi-tenant waste traceability SaaS that traces hospital and hotel waste from generation to recycling, with a dedicated recycler portal for managing incoming pickups and issuing verifiable certificates.</li>
-            <li>Designed a multi-tenant data model with department-scoped access control, tracking every waste entry through a defined Pending → Collected → Processed → Certified lifecycle.</li>
-            <li>Containerized the stack with a multi-stage Dockerfile and deployed to AWS ECS (Fargate) behind an Application Load Balancer, provisioned through a dedicated least-privilege IAM user rather than root-level access.</li>
-            <li>Debugged a TypeScript monorepo build-output issue and stale-cache rendering bugs in production.</li>
-            <li>Stack: React (Vite), GSAP, NestJS, Node.js, TypeScript, PostgreSQL, Prisma, Supabase, Docker, AWS ECR/ECS.</li>
-          </ul>
-          <div class="tech-row"><a class="tech" href="https://veriterra.in" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> veriterra.in</a></div>
-        </div>
-      </div>
+<!--#EXPERIENCE#-->
     </div>
   </section>
 
@@ -490,22 +417,7 @@
     <p>Designed &amp; built by <span>Anukool Yadav</span> · 2026</p>
   </footer>
 
-  <!-- POST MODAL -->
-  <div class="modal-overlay" id="postModal" onclick="handleModalClick(event)">
-    <div class="modal-box" id="modalBox">
-      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-      <div class="modal-header">
-        <div class="modal-tags" id="modalTags"></div>
-        <h2 id="modalTitle"></h2>
-        <div class="modal-date" id="modalDate"></div>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
-
-  <!-- marked.js for markdown rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
   <script src="/js/main.js"></script>
+  </div>
 </body>
 </html>

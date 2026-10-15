@@ -9,6 +9,7 @@
       applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light');
     }
     applyTheme(localStorage.getItem('theme') || 'dark');
+    document.querySelector('.theme-toggle')?.addEventListener('click', toggleTheme);
 
     // ── Stars: 3 depth layers (now in fixed #space-bg) ──
     // Near = big + bright  →  far = tiny + dim
@@ -221,12 +222,6 @@
       r.addEventListener('animationend', () => r.remove());
     }
 
-    (function injectBnKeyframes() {
-      const s = document.createElement('style');
-      s.textContent = '@keyframes bnRipple{0%{transform:scale(0);opacity:1}100%{transform:scale(2.8);opacity:0}}';
-      document.head.appendChild(s);
-    })();
-
     bnItems.forEach(item => {
       item.addEventListener('click', () => {
         createBnRipple(item.querySelector('.bn-icon-wrap'));
@@ -238,7 +233,7 @@
     (function initSwipe() {
       let startX = 0;
       const THRESHOLD = 65;
-      const sectionIds = ['hero', 'about', 'skills', 'projects', 'experience', 'blog', 'certificates', 'education', 'contact'];
+      const sectionIds = ['hero', 'about', 'skills', 'projects', 'experience', 'certificates', 'education', 'contact'];
       document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
       document.addEventListener('touchend', e => {
         const dx = e.changedTouches[0].clientX - startX;
@@ -284,75 +279,6 @@
       });
     }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-    // ── Blog ──
-    const API = '/api/posts';
-
-    function formatDate(iso) {
-      return new Date(iso).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' });
-    }
-
-    function renderCard(p) {
-      const tagsHtml = (p.tags || []).map(t => `<span class="blog-tag">${t}</span>`).join('');
-      return `
-        <div class="blog-card" onclick="openPost('${p.id}')">
-          <div class="blog-tags">${tagsHtml}</div>
-          <h3>${p.title}</h3>
-          <p>${p.excerpt}</p>
-          <div class="blog-meta">
-            <span class="blog-date">${formatDate(p.createdAt)}</span>
-            <span class="read-more">Read more <i class="fas fa-arrow-right"></i></span>
-          </div>
-        </div>`;
-    }
-
-    async function loadPosts() {
-      const grid = document.getElementById('blog-grid');
-      try {
-        const res = await fetch(API);
-        if (!res.ok) throw new Error();
-        const posts = await res.json();
-        if (!posts.length) {
-          grid.innerHTML = `<div class="blog-empty"><div class="icon">✍️</div><p>No posts yet — check back soon!<br/>Or run <code>npm start</code> and add your first post via <a href="/admin.html" style="color:var(--teal)">admin panel</a>.</p></div>`;
-          return;
-        }
-        grid.innerHTML = posts.map(renderCard).join('');
-        grid.querySelectorAll('.blog-card').forEach((el, i) => {
-          setTimeout(() => { el.style.opacity = 0; el.style.transform = 'translateY(16px)'; el.style.transition = 'all 0.4s'; requestAnimationFrame(() => { el.style.opacity = 1; el.style.transform = 'translateY(0)'; }); }, i * 80);
-        });
-      } catch {
-        grid.innerHTML = `<div class="blog-empty"><div class="icon">🚀</div><p>Start the server to load blog posts:<br/><code>npm install &amp;&amp; npm start</code><br/><br/>Then manage posts at <a href="/admin.html" style="color:var(--teal)">/admin.html</a></p></div>`;
-      }
-    }
-
-    loadPosts();
-
-    // ── Post modal ──
-    async function openPost(id) {
-      try {
-        const res = await fetch(`${API}/${id}`);
-        const post = await res.json();
-        document.getElementById('modalTitle').textContent = post.title;
-        document.getElementById('modalDate').textContent = formatDate(post.createdAt);
-        document.getElementById('modalTags').innerHTML = (post.tags || []).map(t => `<span class="blog-tag">${t}</span>`).join('');
-        document.getElementById('modalBody').innerHTML = marked.parse ? marked.parse(post.content) : marked(post.content);
-        document.getElementById('postModal').classList.add('open');
-        document.body.style.overflow = 'hidden';
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('postModal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function handleModalClick(e) {
-      if (e.target === document.getElementById('postModal')) closeModal();
-    }
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
     // ── Contact form ──────────────────────────────────────────────
     document.getElementById('contactForm')?.addEventListener('submit', async e => {

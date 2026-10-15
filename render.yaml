@@ -2,14 +2,20 @@ services:
   - type: web
     name: anukool-portfolio
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: MONGODB_URI
         sync: false
-      - key: ADMIN_PASS
+      - key: ADMIN_PASS_HASH
         sync: false
+      - key: SESSION_SECRET
+        sync: false
+      # Render terminates TLS in front of the app: trust one proxy hop so the
+      # login rate limiter sees real client IPs. Verify with your own setup.
+      - key: TRUST_PROXY
+        value: "1"
       - key: NODE_ENV
         value: production
       - key: RESEND_API_KEY

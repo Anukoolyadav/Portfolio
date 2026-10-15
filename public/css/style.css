@@ -197,6 +197,9 @@
 
     .bn-item:active .bn-icon-wrap { transform: scale(0.93) !important; }
 
+    /* Ripple on bottom-nav tap (was injected from main.js; moved here for the CSP) */
+    @keyframes bnRipple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2.8); opacity: 0; } }
+
     /* On small screens fall back to bottom bar */
     @media (max-width: 640px) {
       .bottom-nav {
@@ -903,6 +906,9 @@
 
     .tech-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
+    /* Shown when a server-rendered section has entries but none are published */
+    .section-empty { color: var(--muted); font-size: 0.88rem; line-height: 1.65; padding: 0.5rem 0; }
+
     .tech {
       font-family: 'Fira Code', monospace;
       font-size: 0.72rem;
@@ -912,163 +918,6 @@
       border: 1px solid rgba(124,106,255,0.22);
       color: var(--accent);
     }
-
-    /* ── BLOG ── */
-    #blog { background: linear-gradient(180deg, transparent, rgba(124,106,255,0.02), transparent); }
-
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.75rem;
-    }
-
-    .blog-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 1.75rem;
-      display: flex;
-      flex-direction: column;
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .blog-card:hover {
-      border-color: rgba(124,106,255,0.35);
-      transform: translateY(-5px);
-      box-shadow: 0 16px 32px rgba(0,0,0,0.3), 0 0 30px rgba(124,106,255,0.08);
-    }
-
-    .blog-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
-
-    .blog-tag {
-      font-size: 0.72rem;
-      padding: 3px 9px;
-      border-radius: 4px;
-      background: rgba(124,106,255,0.1);
-      border: 1px solid rgba(124,106,255,0.2);
-      color: var(--accent);
-    }
-
-    .blog-card h3 { font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin-bottom: 0.6rem; }
-
-    .blog-card p { color: var(--muted); font-size: 0.875rem; line-height: 1.7; flex: 1; margin-bottom: 1rem; }
-
-    .blog-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-
-    .blog-date { font-family: 'Fira Code', monospace; font-size: 0.74rem; color: var(--muted); }
-
-    .read-more {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: gap 0.2s;
-    }
-
-    .read-more:hover { gap: 9px; }
-
-    .blog-empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--muted);
-    }
-
-    .blog-empty .icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
-
-    .blog-empty code {
-      font-family: 'Fira Code', monospace;
-      background: rgba(255,255,255,0.06);
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.85rem;
-    }
-
-    .blog-loading {
-      grid-column: 1 / -1;
-      text-align: center;
-      color: var(--muted);
-      padding: 3rem;
-    }
-
-    /* ── POST MODAL ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(2,5,14,0.92);
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s;
-    }
-
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-    .modal-box {
-      background: #0a1628;
-      border: 1px solid rgba(124,106,255,0.25);
-      border-radius: 20px;
-      max-width: 760px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 2.5rem;
-      position: relative;
-      transform: translateY(20px);
-      transition: transform 0.25s;
-    }
-
-    .modal-overlay.open .modal-box { transform: translateY(0); }
-
-    .modal-close {
-      position: absolute;
-      top: 1.25rem;
-      right: 1.25rem;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .modal-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
-
-    .modal-header { margin-bottom: 1.5rem; }
-    .modal-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
-    .modal-header h2 { font-size: 1.6rem; font-weight: 800; line-height: 1.3; }
-    .modal-date { font-family: 'Fira Code', monospace; font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; }
-
-    .modal-body {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.85;
-    }
-
-    .modal-body h1, .modal-body h2, .modal-body h3 { color: var(--text); margin: 1.5rem 0 0.75rem; }
-    .modal-body p { margin-bottom: 1rem; }
-    .modal-body code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 7px; border-radius: 4px; font-size: 0.9em; }
-    .modal-body pre { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; overflow-x: auto; margin-bottom: 1rem; }
-    .modal-body pre code { background: none; padding: 0; }
-    .modal-body ul, .modal-body ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-    .modal-body li { margin-bottom: 0.4rem; }
-    .modal-body strong { color: var(--text); }
-    .modal-body a { color: var(--teal); }
 
     /* ── EXPERIENCE ── */
     .timeline { padding-left: 1.5rem; border-left: 2px solid rgba(78,205,196,0.2); }
@@ -1648,7 +1497,6 @@
 
     /* Light: cards & surfaces */
     .light .stat,
-    .light .blog-card,
     .light .edu-card,
     .light .tl-card,
     .light .c-layer-top,
@@ -1660,11 +1508,6 @@
     .light .skill-bar-track { background: rgba(0,0,0,0.07); }
     .light .cert-row, .light .ach-row, .light .proj-row { border-color: rgba(20,40,110,0.1); }
     .light .cert-row-name, .light .ach-row-body h3, .light .proj-row h3 { color: var(--text); }
-
-    /* Light: modal */
-    .light .modal-box     { background: #f5f9ff; border-color: rgba(90,77,230,0.2); }
-    .light .modal-close   { background: rgba(0,0,60,0.05); border-color: rgba(20,40,110,0.1); color: var(--text); }
-    .light .modal-body    { color: rgba(13,27,62,0.72); }
 
     /* Light: footer */
     .light footer { background: var(--navy); }
