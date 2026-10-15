@@ -2,7 +2,7 @@ services:
   - type: web
     name: anukool-portfolio
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:

@@ -9,8 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/app-build/assets/index.css">
 </head>
 <body>
+  <!-- Phase 1 Anukool OS shell. Legacy sections below remain server-rendered for
+       API/admin compatibility and are visually tucked away by the client shell. -->
+  <div id="root"></div>
+  <script type="module" src="/app-build/assets/index.js"></script>
+  <div id="legacy-content" aria-hidden="true">
 
   <!-- Fixed space background — stars live here, span full page depth -->
   <div id="space-bg">
@@ -412,5 +418,6 @@
   </footer>
 
   <script src="/js/main.js"></script>
+  </div>
 </body>
 </html>
